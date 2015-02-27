@@ -11,7 +11,7 @@ from oauth2client.tools import run
 
 # The file with the OAuth 2.0 Client details for authentication and authorization.
 # modify the line below to be the name of YOUR client secrets file
-CLIENT_SECRETS = 'client_secrets.json'
+CLIENT_SECRETS = 'my_client_secrets.json'
 
 # A helpful message to display if the CLIENT_SECRETS file is missing.
 MISSING_CLIENT_SECRETS_MESSAGE = '%s is missing' % CLIENT_SECRETS
