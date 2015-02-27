@@ -1,5 +1,5 @@
 # my_client_secrets.json
-my.*
+my*
 *.dat
 *.pyc
 
