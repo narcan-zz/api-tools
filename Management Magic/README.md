@@ -5,7 +5,12 @@ Custom Dimension Management Magic
 The Google Analytics API can be accessed through Google Sheets to pull data directly into a spreadsheet, which is a common use case. This example walks through the steps necessary to pull custom dimension settings for your property into a Google Sheet, make edits, and update Google Analytics to reflect the settings in your sheet.
 
 ###Getting started
-Add the Custom Dimension Management Magic Add-on to your Google Sheet and follow the steps below to set up your sheet:
+Because the process to publish add-ons to Google Sheets currently requires an application process, it is faster to deploy this tool by __adding the code to your sheet yourself__.
+
+To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](https://github.com/narcan/tools/blob/master/Management%20Magic/Custom%20Dimension%20Management%20Magic.js) file in [this repository](https://github.com/narcan/tools/tree/master/Management%20Magic) into your script editor.
+
+<!--- Add the Custom Dimension Management Magic Add-on to your Google Sheet and-->
+Follow the steps below to set up your sheet:
 
 1. Give a 1-cell range the name __propertyId__ and enter the id of the property you wish to manage into this cell ([learn more about naming cell ranges in Google Sheets](https://support.google.com/docs/answer/63175?hl=en))
 
