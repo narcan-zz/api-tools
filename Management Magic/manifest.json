@@ -1,5 +1,5 @@
 {
-  "name": "Google Analytics Custom Dimension Management Magic",
+  "name": "GA Custom Dimension Management Magic",
   "description": "Sheets Add-on to manage custom dimensions at scale using Google Sheets",
   "version": "1.0",
   "manifest_version": 2
