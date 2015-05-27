@@ -7,7 +7,7 @@ The Google Analytics API can be accessed through Google Sheets to pull data dire
 ###Getting started
 Because the process to publish add-ons to Google Sheets currently requires an application process, it is faster to deploy this tool by __adding the code to your sheet yourself__.
 
-To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](https://github.com/narcan/tools/blob/master/Management%20Magic/Custom%20Dimension%20Management%20Magic.js) file in [this repository](https://github.com/narcan/tools/tree/master/Management%20Magic) into your script editor.
+To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](https://github.com/narcan/tools/blob/master/Management%20Magic/Custom%20Dimension%20Management%20Magic.js) file in [this repository](https://github.com/narcan/tools/tree/master/Management%20Magic) into your script editor. Be sure to [enable advanced services](https://developers.google.com/apps-script/guides/services/advanced#enabling_advanced_services) for Google Analytics.
 
 <!--- Add the Custom Dimension Management Magic Add-on to your Google Sheet and-->
 Follow the steps below to set up your sheet:
