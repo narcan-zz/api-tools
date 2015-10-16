@@ -2,10 +2,13 @@
 
 # import required classes
 import httplib2
+import argparse
+from apiclient import errors
 from apiclient.discovery import build
-from oauth2client.client import flow_from_clientsecrets
+from oauth2client import tools
 from oauth2client.file import Storage
-from oauth2client.tools import run
+from oauth2client.tools import run_flow
+from oauth2client.client import flow_from_clientsecrets
 
 # Declare constants and set configuration values
 
@@ -31,10 +34,11 @@ def prepare_credentials():
   storage = Storage(TOKEN_FILE_NAME)
   credentials = storage.get()
 
-  # If existing credentials are invalid and Run Auth flow
+   # If existing credentials are invalid and Run Auth flow
   # the run method will store any new credentials
   if credentials is None or credentials.invalid:
-    credentials = run(FLOW, storage) #run Auth Flow and store credentials
+    flags = tools.argparser.parse_args(args=[])
+    credentials = tools.run_flow(FLOW, storage, flags)#run Auth Flow and store credentials
 
   return credentials
 
