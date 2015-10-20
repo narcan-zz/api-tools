@@ -7,7 +7,7 @@ The Google Analytics API can be accessed through a Google Sheet to list and upda
 ###Getting started
 Because the process to publish add-ons to Google Sheets currently requires an application process, it is faster to deploy this tool by __adding the code to your sheet yourself__.
 
-To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](https://github.com/narcan/tools/blob/master/Management%20Magic/Custom%20Dimension%20Management%20Magic.js) file in [this repository](https://github.com/narcan/tools/tree/master/Management%20Magic) into your script editor.
+To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](https://github.com/narcan/tools/blob/master/Management%20Magic/Custom%20Dimension%20Management%20Magic.js) file in [this repository](https://github.com/narcan/tools/tree/master/Management%20Magic) into your script editor. Be sure to [enable advanced services](https://developers.google.com/apps-script/guides/services/advanced#enabling_advanced_services) for Google Analytics.
 
 ###Using the tool
 
@@ -41,3 +41,4 @@ Give the name __standardCDInfo__ to a range that will hold your custom dimension
 - It is recommended to make the column receiving the custom dimension index [non-editable](https://support.google.com/docs/answer/144687?hl=en). Changing these values may result in undesirable behavior.
 - It is recommended to only allow the following values in the column receiving custom dimension scope: USER, SESSION, HIT, PRODUCT. Attempting to update custom dimensions with other values may result in undesirable behavior.
 - It is recommended to only allow the boolean values (TRUE or FALSE) in the column receiving custom dimension activity status. Attempting to update custom dimensions with other values may result in undesirable behavior.
+- It is recommended to only allow the boolean values (true or false) in the column receiving custom dimension activity status. Attempting to update custom dimensions with other values may result in undesirable behavior.
