@@ -1,13 +1,13 @@
-Custom Dimension Management
+Custom Dimension Management Magic
 ---------
 
 ###Working with Custom Dimensions in Google Sheets
-The Google Analytics API can be accessed through a Google Sheet to list and update custom dimension information in a tabular format. This code walks through the steps necessary to pull custom dimension settings for a property into a Google Sheet, make edits, and update Google Analytics to reflect the settings in your sheet.
+The Google Analytics API can be accessed through Google Sheets to pull data directly into a spreadsheet, which is a common use case. This application sets up a Google Sheets Add-on that can format a sheet and list dimensions from a property in a Google Sheet. It can then upload dimensions listed on a Google Sheet to one or more properties.
 
 ###Getting started
-Because the process to publish add-ons to Google Sheets currently requires an application process, it is faster to deploy this tool by __adding the code to your sheet yourself__.
+The code presented here can serve as a standalone add-on, or it can be pasted directly into the script editor of a Google Sheet for one-time use.
 
-To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](https://github.com/narcan/tools/blob/master/Management%20Magic/Custom%20Dimension%20Management%20Magic.js) file in [this repository](https://github.com/narcan/tools/tree/master/Management%20Magic) into your script editor. Be sure to [enable advanced services](https://developers.google.com/apps-script/guides/services/advanced#enabling_advanced_services) for Google Analytics.
+To do so, [create a script bound to your Google Sheet](https://developers.google.com/apps-script/guides/bound#creating_a_bound_script) and copy the apps script code from the [Custom Dimension Management Magic](hhttps://github.com/narcan/tools/blob/master/GA%20Management%20Magic/Dimensions/Custom%20Dimension%20Management.js) file in [this repository](https://github.com/narcan/tools/tree/master/GA%20Management%20Magic/Dimensions) into your script editor.
 
 ###Using the tool
 
@@ -15,17 +15,17 @@ To do so, [create a script bound to your Google Sheet](https://developers.google
 
 To list custom dimensions from a property, run the __List custom dimensions__ command from the add-on menu. Enter the property ID from which to list custom dimension settings into the prompt.
 
-A new sheet will be added, formatted, and populated with the values from the property.
+A new sheet will be added with the run time and property id. It will be formatted and populated with the values from the property. Additionally, it will populate dummy values into the sheet for any unused but available custom dimension slots in the property.
 
 If you update any of these values, you can update the custom dimensions in your property by running the _Update custom dimensions_ function from the add-on menu.
 
-__It is recommended that you not update blank values into the property__ as it may result in undesireable behavior.
+__Note that any dummy values still in the sheet will be uploaded to the property. Additionally, it is recommended that you not update blank values into the property__ as it may result in undesireable behavior.
 
 ####Updating Custom Dimensions
 
 To update custom dimension settings within a property or list of properties, run the __Update custom dimensions__ command from the add-on menu. Enter the property IDs (separated by commas) of the properties that should be updated with the custom dimension settings in your sheet.
 
-If you have correctly named the range to contain the custom dimension settings, the properties in the list will be updated with these values.
+If you have correctly named the range to contain the custom dimension settings (see below), the properties in the list will be updated with these values.
 
 If you have not named the range(s) as described below, the script will format a new sheet for you into which you can enter your custom dimension settings.
 
