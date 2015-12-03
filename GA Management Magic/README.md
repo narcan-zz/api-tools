@@ -1,6 +1,7 @@
 GA Management Magic
 ---------
-The Google Analytics Management API can be accessed through a Google Sheet to list and update settings data in a tabular format. This application lists management entities from Google Analytics into your sheet, and allows you to update Google Analytics settings based on edits or additions you've made in your sheet.
+
+The Google Analytics Management API can be accessed through a Google Sheet to list and update settings data in a tabular format. This application lists management entities from Google Analytics into your sheet, and allows you to update settings based on edits or additions in your sheet.
 ---------
 ##Working with Custom Dimensions in Google Sheets
 ####Listing Custom Dimensions
