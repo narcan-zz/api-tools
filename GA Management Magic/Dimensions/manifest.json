@@ -1,6 +1,0 @@
-{
-  "name": "GA Custom Dimension Management Magic",
-  "description": "List & update Google Analytics custom dimensions from a spreadsheet. Edit custom dimension settings to multiple properties in bulk.",
-  "version": "2.0",
-  "manifest_version": 2
-}
