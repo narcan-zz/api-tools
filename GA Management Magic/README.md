@@ -1,8 +1,7 @@
 GA Management Magic
 ---------
-
 The Google Analytics Management API can be accessed through a Google Sheet to list and update settings data in a tabular format. This application lists management entities from Google Analytics into your sheet, and allows you to update settings based on edits or additions in your sheet.
----------
+
 ##Working with Custom Dimensions in Google Sheets
 ####Listing Custom Dimensions
 To list custom dimensions from a property (or list of properties), run the __List custom dimensions__ command from the add-on menu. At the prompt, enter one or more property ID(s) from which to list custom dimension settings in your sheet.
