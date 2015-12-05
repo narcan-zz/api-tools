@@ -16,17 +16,23 @@ function requestCDList() {
   
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.OK) {
-    Logger.log('The user entered property ID: %s.', response.getResponseText());
+    // Construct the array of one or more properties from the user's input.
     var propertyList = response.getResponseText();
     var propertyListArray = propertyList.split(/\s*,\s*/);
     
+    // List custom dimensions from all properties entered by the user.
     var listResponse = listCustomDimensions(propertyListArray);
+    
+    // Output errors and log successes.
     if (listResponse != "success") {
       Browser.msgBox(listResponse);
     } else {
       Logger.log("List custom dimensions response: "+ listResponse)
     }
-  } else if (response.getSelectedButton() == ui.Button.CANCEL) {
+  }
+  
+  // Log method by which the user chose not to proceed.
+  else if (response.getSelectedButton() == ui.Button.CANCEL) {
     Logger.log('The user did not provide a property ID.');
   } else {
     Logger.log('The user clicked the close button in the dialog\'s title bar.');
@@ -36,54 +42,50 @@ function requestCDList() {
 /**************************************************************************
 * Lists dimension settings from the property into a new sheet
 * @param {string} property The tracking ID of the GA property
-* @return {string} Operation output ("success" or an exception message)
+* @return {string} Operation output ('success' or error message)
 */
 function listCustomDimensions(propertyList) {
+  // Set common values
   var include = "✓";
   var allCDs = [];
+  var dataColumns = 6;
   
+  // Iterate through the array of properties from which to list dimensions
   for (p = 0; p < propertyList.length; p++) {
     var property = propertyList[p];
-    var account = property.match(/UA-(\d+)-*.*/)[1];
     
-    // Attempt to get property information from the Management API
-    try {
-      var propertyType = Analytics.Management.Webproperties.get(account, property).level;
-      var customDimensionList = Analytics.Management.CustomDimensions.list(account, property);
-    } catch (e) {
-      return e.message;
-    }
-    
-    // set common values and property type-specific values
-    var dataColumns = 6;
-    var dataRows = (propertyType == "PREMIUM") ? 200 : 20;
-    
-    // Process the information received from the Management API
-    try {
-      // capture the list of custom dimensions and create a 2d array to store what will be output to the sheet
-      var cds = [];
+    // Attempt to process a property id that matches a valid format.
+    if (property.match(/UA-\d+-\d+/)) {
       
-      // Iterate through all possible custom dimensions and set a placeholder for those not set
-      for (var i = 0; i < customDimensionList.totalResults; i++) {
-        // If the custom dimension for the current slot exists, get its values
-        if (customDimensionList.items[i]) {
-          var cdProperty = customDimensionList.items[i].webPropertyId;
-          var cdName = customDimensionList.items[i].name;
-          var cdIndex = customDimensionList.items[i].index;
-          var cdScope = customDimensionList.items[i].scope;
-          var cdActive = customDimensionList.items[i].active;
-          
-          // Store the array of values into the ith slot of the 2d sheet array
-          cds[i] = [include,cdProperty,cdName,cdIndex,cdScope,cdActive];
-          allCDs.push(cds[i]);
-        } 
+      // Extract the account from the property id
+      var account = property.match(/UA-(\d+)-\d+/)[1];
+      
+      // Attempt to get property information from the Management API
+      try {
+        var customDimensionList = Analytics.Management.CustomDimensions.list(account, property);
+      } catch (e) {
+        return e.message;
       }
-    } catch (e) {
-      return e.message;
+      
+      // Attempt to store the information received from the Management API in an array
+      try {
+        var cds = [];
+        
+        // Parse each result of the API request and push it to an array
+        for (var i = 0; i < customDimensionList.totalResults; i++) {
+          var cd = customDimensionList.items[i];
+          cds[i] = [include,cd.webPropertyId,cd.name,cd.index,cd.scope,cd.active];
+          allCDs.push(cds[i]); 
+        }
+      } catch (e) {
+        return e.message;
+      }
     }
+    // Return an error message if the property id does not match the correct format.
+    else return property +" is an invalid property format";
   }
   
-  // insert the values processed from the API into the sheet
+  // Insert the values processed from the API into a formatted sheet
   try {    
     // Set the values in the sheet
     var sheet = formatDimensionSheet(true);
@@ -92,8 +94,11 @@ function listCustomDimensions(propertyList) {
     return e.message;
   }
   
-  // send Measurement Protocol hit to Google Analytics
-  //mpHit(ss.getUrl(),'list custom dimensions');
+  // send Measurement Protocol event hit to Google Analytics
+  var label = propertyList;
+  var value = propertyList.length;
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'list custom dimensions',label,value);
+  Logger.log(httpResponse);
   
   return "success";
 }

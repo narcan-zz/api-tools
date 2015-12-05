@@ -1,8 +1,5 @@
 /* Management Magic for Google Analytics
 *   Adds a menu item to manage Google Analytics Properties
-*   - @TODO expand to other management entities
-* 
-* Last updated: 2015.10.21
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
 **************************************************************************/
@@ -38,15 +35,10 @@ function onOpen(e) {
     }
     menu.addToUi();
     
-    // send Measurement Protocol hit to Google Analytics
-    try {
-      mpHit(ss.getUrl(),'open');
-    } catch (error) {
-      Logger.log("hit not sent: " + error.message);
-    }
-    
-  } catch (error) {
-    Browser.msgBox(error.message);
+    // send Measurement Protocol hitType to Google Analytics
+      mphitType(ss.getUrl(),'open');    
+  } catch (e) {
+    Browser.msgBox(e.message);
   }
 }
 
@@ -54,8 +46,8 @@ function onOpen(e) {
 * Edit function runs when the application is edited
 */
 function onEdit(e) {
-  // send Measurement Protocol hit to Google Analytics
-  mpHit(ss.getUrl(),'edit');
+  // send Measurement Protocol hitType to Google Analytics
+  mphitType(ss.getUrl(),'edit');
 }
 
 /**************************************************************************
@@ -63,8 +55,8 @@ function onEdit(e) {
 */
 function onInstall(e) {
   onOpen(e);
-  // send Measurement Protocol hit to Google Analytics
-  mpHit(ss.getUrl(),'install');
+  // send Measurement Protocol hitType to Google Analytics
+  mphitType(ss.getUrl(),'install');
 }
 
 /**
@@ -83,30 +75,39 @@ function about() {
 * Example function for Google Analytics Measurement Protocol.
 * @param {string} tid Tracking ID / Web Property ID
 * @param {string} url Document location URL
+* @return {string} HTTP response
 */
-function mpHit(url, action){
-  var hit, category = '';
-  
-  if (action == 'open' || action == '') {hit = 'pageview';} else {
-    hit = 'event';
-    category = 'interaction';
+function mphitType(url, intent, label, value){
+  if (intent == 'open'|| intent == 'edit' || intent == 'install' || intent == '') {
+    var hitType = 'pageview';
+    var category, action, label, value = '';
+  } else {
+    var hitType = 'event';
+    var category = 'interaction';
+    var action = intent;
   }
   
-  var payload = {'v': '1',
-                 'tid': 'UA-42086200-17',
-                 'cid': generateUUID_(),
-                 'z': Math.floor(Math.random()*10E7),
-                 't': hit,
-                 'ds': 'web',
-                 'dr': 'GA Management Magic Addon',
-                 'dl': url,
-                 'ec': category,
-                 'ea': action
-                };
-  var options = {'method' : 'POST',
-                 'payload' : payload
-                };
-  UrlFetchApp.fetch('https://www.google-analytics.com/collect', options);
+  var v = '1';
+  var tid = 'UA-42086200-17';
+  var cid = generateUUID_();
+  var z = Math.floor(Math.random()*10E7);
+  var ds = 'web';
+  var dr = encodeURIComponent('GA Management Magic Addon');
+  var dl = encodeURIComponent(url);
+  var el = encodeURIComponent(label);
+  
+  var hit = "https://www.google-analytics.com/collect?"
+  +"v="+ v
+  +"&tid="+ tid
+  +"&cid="+ cid
+  +"&z="+ z
+  +"&t="+ hitType
+  +"&ds="+ ds
+  +"&dr="+ dl
+  +"&dl="+ dl;  
+  if (hitType == 'event') hit = hit +"&ec="+ category +"&ea="+ action +"&el="+ el +"&ev="+ value;
+  
+  return UrlFetchApp.fetch(hit).getHeaders();
 }
 
 // http://stackoverflow.com/a/2117523/1027723

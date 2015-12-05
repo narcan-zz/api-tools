@@ -32,6 +32,8 @@ function updateFilters() {
   var dataRows = sheet.getDataRange().getNumRows()-1;
   var filterRange = sheet.getRange(2,1,dataRows,sheet.getMaxColumns());
   var filters = filterRange.getValues();
+  var numFiltersUpdated = 0;
+  var accountsUpdated = [];
   
   // iterate through the filter values on the sheet and insert them into the account
   for (var f = 0; f < filters.length; f++) {
@@ -44,6 +46,10 @@ function updateFilters() {
       var resource = {};
       resource.name = name;
       resource.type = type;
+      
+      // increment the number of filters updated and add the account to the array of updated accounts if it's not already there
+      if (accountsUpdated.indexOf(account) < 0) accountsUpdated.push(account);
+      numFiltersUpdated++;
       
       if (type == 'INCLUDE') {
         resource.includeDetails = {};
@@ -96,7 +102,10 @@ function updateFilters() {
   }
   
   // send Measurement Protocol hit to Google Analytics
-  //mpHit(ss.getUrl(),'update filters');
+  var label = accountsUpdated;
+  var value = numFiltersUpdated;
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'update filters',label,value);
+  Logger.log(httpResponse);
   
   return "success";
 }
