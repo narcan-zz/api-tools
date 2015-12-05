@@ -9,22 +9,30 @@
 * Obtains input from user necessary for updating custom dimensions.
 */
 function requestFilterUpdate() {
-  // check that the necessary named range exists for the update to successfully update filter values.
+  // Check that the necessary named range exists.
   if (SpreadsheetApp.getActiveSpreadsheet().getRangeByName("header_row")) {
+    
+    // Update the filters from the sheet.
     var updateFiltersResponse = updateFilters();
+    
+    // Output errors and log successes.
     if (updateFiltersResponse != "success") {
       Logger.log("response for "+ account + ": "+ updateFiltersResponse)
+    } else {
+      Logger.log("Update filters response: "+ updateFiltersResponse)
     }
-  } else { // if the named range necessary for the function to update filters does not exist, format the sheet and display instructions to the user
-    var createNew = true;
-    formatFilterSheet(createNew);
+  }
+  
+  // If there is no named range (necessary to update values), format the sheet and display instructions to the user.
+  else {
+    formatFilterSheet(true);
     Browser.msgBox("Enter filter values into the sheet provided before requesting to update filters.")
   }
 }
 
 /**************************************************************************
-* Updates dimension settings from the active sheet to a property
-* @return {string} The result of the update operation ('updated', if successful)
+* Updates dimension settings from the active sheet to a property.
+* @return {string} The result of the update operation ("success", if successful)
 */
 function updateFilters() {
   // Get common values
@@ -35,9 +43,10 @@ function updateFilters() {
   var numFiltersUpdated = 0;
   var accountsUpdated = [];
   
-  // iterate through the filter values on the sheet and insert them into the account
+  // Iterate through rows of values in the sheet.
   for (var f = 0; f < filters.length; f++) {
-    // if the filter is to be included in the upload
+    
+    // Process values marked for inclusion.
     if (filters[f][0]) {
       var account = filters[f][1];
       var filterId = filters[f][2].toString();
@@ -47,34 +56,50 @@ function updateFilters() {
       resource.name = name;
       resource.type = type;
       
-      // increment the number of filters updated and add the account to the array of updated accounts if it's not already there
-      if (accountsUpdated.indexOf(account) < 0) accountsUpdated.push(account);
+      // increment the number of filters updated and add the account to the array of updated accounts if it's not already there.
       numFiltersUpdated++;
+      if (accountsUpdated.indexOf(account) < 0) accountsUpdated.push(account);
       
+      // Get include-specific values.
       if (type == 'INCLUDE') {
         resource.includeDetails = {};
         resource.includeDetails.field = filters[f][5];
         resource.includeDetails.matchType = filters[f][6];
         resource.includeDetails.expressionValue = filters[f][7];
         resource.includeDetails.caseSensitive = filters[f][19];
-      } else if (type == 'EXCLUDE') {
+      }
+      
+      // Get exclude-specific values.
+      else if (type == 'EXCLUDE') {
         resource.excludeDetails = {};
         resource.excludeDetails.field = filters[f][5];
         resource.excludeDetails.matchType = filters[f][6];
         resource.excludeDetails.expressionValue = filters[f][7];
         resource.excludeDetails.caseSensitive = filters[f][19];
-      } else if (type == 'LOWERCASE') {
+      }
+      
+      // Get lowercase-specific values.
+      else if (type == 'LOWERCASE') {
         resource.lowercaseDetails = {};
         resource.lowercaseDetails.field = filters[f][5];
-      } else if (type == 'UPPERCASE') {
+      }
+      
+      // Get uppercase-specific values.
+      else if (type == 'UPPERCASE') {
         resource.uppercaseDetails = {};
         resource.uppercaseDetails.field = filters[f][5];
-      } else if (type == 'SEARCH_AND_REPLACE') {
+      }
+      
+      // Get searchAndReplace-specific values.
+      else if (type == 'SEARCH_AND_REPLACE') {
         resource.searchAndReplaceDetails = {};
         resource.searchAndReplaceDetails.field = filters[f][5];
         resource.searchAndReplaceDetails.searchString = filters[f][8];
         resource.searchAndReplaceDetails.replaceString = filters[f][9];
-      } else if (type == 'ADVANCED') {
+      }
+      
+      // Get advanced-specific values.
+      else if (type == 'ADVANCED') {
         resource.advancedDetails = {};
         resource.advancedDetails.fieldA = filters[f][10];
         resource.advancedDetails.extractA = filters[f][11];
@@ -86,17 +111,30 @@ function updateFilters() {
         resource.advancedDetails.outputConstructor = filters[f][17];
         resource.advancedDetails.overrideOutputField = filters[f][18];
         resource.advancedDetails.overrideOutputField = filters[f][19];
-      } else return "invalid match type '"+ type +"' at filters["+ f +"][4])";
+      }
       
+      // Return an error to the user if no filter type value exists.
+      else return "invalid match type '"+ type +"' at filters["+ f +"][4])";
+      
+      // Attempt to get the id for the filter in the sheet (the API throws an exception when no filter exists for the id).
       try {
+        
+        // If the id exists, set the necessary values update the filter
         if (Analytics.Management.Filters.get(account, filterId).id) {
           resource.id = filterId;
-          try {Analytics.Management.Filters.update(resource, account, filterId);} catch (e) { return "failed to update filters\n"+ e;}
-        } else {
-          try { Analytics.Management.Filters.insert(resource, account);} catch (e) { return "failed to insert filters\n"+ e;}
+          
+          // Attempt to update the filter through the API
+          try {Analytics.Management.Filters.update(resource, account, filterId);
+              } catch (e) { return "failed to update filters\n"+ e;}
         }
-      } catch (e) {
-        return "failed to get filter\n"+ e;
+      }
+      
+      // As noted in the try-block comment above, if no filter exists, the API throws an exception
+      // if no filter exists, catch this exception and set the necessary values to insert the filter
+      catch (e) {
+        // Attempt to insert the filter
+        try { Analytics.Management.Filters.insert(resource, account);
+            } catch (e) { return "failed to insert filters\n"+ e;}
       }
     }
   }

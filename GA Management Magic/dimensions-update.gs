@@ -9,23 +9,21 @@
 * Obtains input from user necessary for updating custom dimensions.
 */
 function requestCDUpdate() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  
-  // Check that the necessary named range exists for the update to successfully update dimension values.
-  if (ss.getRangeByName("header_row")) {
+  // Check that the necessary named range exists.
+  if (SpreadsheetApp.getActiveSpreadsheet().getRangeByName("header_row")) {
     
     // Update custom dimensions from the sheet.
-    var updateResponse = updateCustomDimensions();
+    var updateDimensionResponse = updateDimensions();
     
     // Output errors and log successes.
-    if (updateResponse != "success") {
-      Browser.msgBox(updateResponse);
+    if (updateDimensionResponse != "success") {
+      Browser.msgBox(updateDimensionResponse);
     } else {
-      Logger.log("Update custom dimensions response: "+ updateResponse)
+      Logger.log("Update custom dimensions response: "+ updateDimensionResponse)
     }
   }
   
-  // If there is no named range (necessary tup update dimension values), format the sheet and display instructions to the user
+  // If there is no named range (necessary to update values), format the sheet and display instructions to the user
   else {
     var sheet = formatDimensionSheet(true);
     Browser.msgBox("Enter dimension values into the sheet provided before requesting to update dimensions.")
@@ -36,31 +34,31 @@ function requestCDUpdate() {
 * Updates dimension settings from the active sheet to a property.
 * @return {string} Operation output ("success" or error message)
 */
-function updateCustomDimensions() {
+function updateDimensions() {
   // set common values
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var dataRange = sheet.getDataRange();
   var dataColumns = dataRange.getNumColumns(); // should be 5
   var dataRows = dataRange.getNumRows() - 1;
   var maxRows = (propertyType == "PREMIUM") ? 200 : 20;
-  var numCDsUpdated = 0;
+  var numDimensionsUpdated = 0;
   var propertiesUpdated = [];
-    
+  
   // Capture the sheet values.
-  var cds = sheet.getRange(2,1,dataRows,dataColumns).getValues();
+  var dimensions = sheet.getRange(2,1,dataRows,dataColumns).getValues();
   
   // Iterate through rows of values in the sheet.
-  for (var d = 0; d < cds.length; d++) {
+  for (var d = 0; d < dimensions.length; d++) {
     
     // Process values marked for inclusion.
-    if (cds[d][0]) {
-      var property = cds[d][1];
+    if (dimensions[d][0]) {
+      var property = dimensions[d][1];
       var account = property.match(/UA-(.+)-.*/)[1];
-      var name = cds[d][2], index = cds[d][3], scope=cds[d][4], active=cds[d][5];
+      var name = dimensions[d][2], index = dimensions[d][3], scope=dimensions[d][4], active=dimensions[d][5];
       var dimensionId="ga:dimension"+index;
       
-      // Increment the number of dimensions updated and add the property to the array of updated properties if it's not already in the array.
-      numCDsUpdated++;
+      // Increment the number of dimensions updated and add the property to the array of updated properties if it's not already there.
+      numDimensionsUpdated++;
       if (propertiesUpdated.indexOf(property) < 0) propertiesUpdated.push(property);
       
       // Attempt to get the property type from the Property API and set the maximum number of dimensions accordingly.
@@ -79,9 +77,9 @@ function updateCustomDimensions() {
       // If the index is higher than it can be for the property (type), return an error to the user.
       else if ((propertyType == "PREMIUM" && index > 200) || (propertyType == "STANDARD" && index > 20)) {
         return "Index value ("+ index 
-                              +") for dimension '"+ name +"' is too high ("
-                              + property +" is a "+ propertyType +" property and can only have up to "
-                              + maxDimensions +"dimensions)";
+        +") for dimension '"+ name +"' is too high ("
+        + property +" is a "+ propertyType +" property and can only have up to "
+        + maxDimensions +"dimensions)";
       }
       
       // If the index is valid, push the value to Google Analytics.
@@ -97,7 +95,7 @@ function updateCustomDimensions() {
             
             // Attempt to update the dimension through the API
             try { Analytics.Management.CustomDimensions.update(resource,account,property,dimensionId,options);
-            } catch (e) {return "failed to update all custom dimensions\n"+ e.message}
+                } catch (e) {return "failed to update all custom dimensions\n"+ e.message}
           }
         }
         
@@ -106,6 +104,8 @@ function updateCustomDimensions() {
         catch (e) {
           if (e.message.match(/ga:dimension(\d)+ not found/)) {
             var resource = {"index":index, "name":name, "scope":scope, "active":active};
+            
+            // Attempt to inser the dimension
             try { Analytics.Management.CustomDimensions.insert(resource,account,property); } catch (e) {return "failed to insert all custom dimensions\n"+ e.message}
           } else return "failed to insert all custom dimensions\n"+ e.message;
         }
@@ -115,7 +115,7 @@ function updateCustomDimensions() {
   
   // send Measurement Protocol hit to Google Analytics
   var label = propertiesUpdated;
-  var value = numCDsUpdated;
+  var value = numDimensionsUpdated;
   var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'update custom dimensions',label,value);
   Logger.log(httpResponse);
   

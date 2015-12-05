@@ -47,14 +47,14 @@ function requestCDList() {
 function listCustomDimensions(propertyList) {
   // Set common values
   var include = "✓";
-  var allCDs = [];
+  var allDimensions = [];
   var dataColumns = 6;
   
   // Iterate through the array of properties from which to list dimensions
   for (p = 0; p < propertyList.length; p++) {
     var property = propertyList[p];
     
-    // Attempt to process a property id that matches a valid format.
+    // Process a property id if it matches a valid format.
     if (property.match(/UA-\d+-\d+/)) {
       
       // Extract the account from the property id
@@ -69,13 +69,13 @@ function listCustomDimensions(propertyList) {
       
       // Attempt to store the information received from the Management API in an array
       try {
-        var cds = [];
+        var dimensions = [];
         
         // Parse each result of the API request and push it to an array
         for (var i = 0; i < customDimensionList.totalResults; i++) {
           var cd = customDimensionList.items[i];
-          cds[i] = [include,cd.webPropertyId,cd.name,cd.index,cd.scope,cd.active];
-          allCDs.push(cds[i]); 
+          dimensions[i] = [include,cd.webPropertyId,cd.name,cd.index,cd.scope,cd.active];
+          allDimensions.push(dimensions[i]); 
         }
       } catch (e) {
         return e.message;
@@ -89,7 +89,7 @@ function listCustomDimensions(propertyList) {
   try {    
     // Set the values in the sheet
     var sheet = formatDimensionSheet(true);
-    sheet.getRange(2,1,allCDs.length,dataColumns).setValues(allCDs);
+    sheet.getRange(2,1,allDimensions.length,dataColumns).setValues(allDimensions);
   } catch (e) {
     return e.message;
   }

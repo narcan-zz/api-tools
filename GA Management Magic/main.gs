@@ -77,7 +77,7 @@ function about() {
 * @param {string} url Document location URL
 * @return {string} HTTP response
 */
-function mphitType(url, intent, label, value){
+function mpHit(url, intent, label, value){
   if (intent == 'open'|| intent == 'edit' || intent == 'install' || intent == '') {
     var hitType = 'pageview';
     var category, action, label, value = '';

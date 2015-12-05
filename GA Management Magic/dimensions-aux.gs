@@ -14,7 +14,7 @@ function formatDimensionSheet(createNew) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var date = new Date();
-  var sheetName = "CDs@"+ date.getTime();
+  var sheetName = "Dimensions@"+ date.getTime();
   
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;
@@ -102,7 +102,10 @@ function formatDimensionSheet(createNew) {
   }
   
   // send Measurement Protocol hit to Google Analytics
-  //mpHit(ss.getUrl(),'format custom dimension sheet');
+  var label = '';
+  var value = '';
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'format dimension sheet',label,value);
+  Logger.log(httpResponse);
   
   return sheet;
 }

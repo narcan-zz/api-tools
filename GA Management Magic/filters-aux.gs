@@ -8,36 +8,30 @@
 /**************************************************************************
 * Adds a formatted sheet to the spreadsheet to faciliate data management.
 * @param {boolean} createNew A boolean flag indicating whether to create a new sheet or format the current one
-* @param {string} sheetName A string holding the name of the sheet after formatting
-* @return {int} the formatted sheet id
+* @return {string} the formatted sheet name
 */
 function formatFilterSheet(createNew) {
+  // Get common values.
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var ui = SpreadsheetApp.getUi();
   var date = new Date();
   var sheetName = "Filters@"+ date.getTime();
+  var cols = 20;
   
   // normalize flag to create a new sheet
   createNew = (createNew === undefined) ? false : true;
   
   // Get the active sheet and its meta data
-  try {
-    if (createNew) {
-      ss.insertSheet(sheetName, 0);
-      var sheet = ss.getActiveSheet();
-    } else {
-      var sheet = ss.getActiveSheet();
-    }
-    var cols = 20;
-    var numCols = sheet.getMaxColumns();
-    var deltaCols = numCols - cols;
-    var numRows = sheet.getMaxRows();
-    
-  } catch (e) {
-    return Browser.msgBox(e.message);
+  if (createNew) {
+    ss.insertSheet(sheetName, 0);
+    var sheet = ss.getActiveSheet();
+  } else {
+    var sheet = ss.getActiveSheet();
   }
+  var numCols = sheet.getMaxColumns();
+  var deltaCols = numCols - cols;
   
-  // Set the number of columns
+  // Add or remove columns based on the number of columns there should be
   try {
     if (deltaCols > 0) {
       sheet.deleteColumns(cols, deltaCols);
@@ -48,6 +42,7 @@ function formatFilterSheet(createNew) {
     return Browser.msgBox(e.message);
   }
   
+  // Set ranges.
   var includeCol = sheet.getRange("A2:A");
   var idCol = sheet.getRange("C2:C");
   var typeCol = sheet.getRange("E2:E");
@@ -57,9 +52,11 @@ function formatFilterSheet(createNew) {
   var overrideOutputFieldCol = sheet.getRange("S2:S");
   var caseCol = sheet.getRange("T2:T");
   
-  // set header values and formatting
+  // Set header range.
   var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns()); //num columns should be 20
   ss.setNamedRange("header_row", headerRange);
+  
+  // Set header values.
   sheet.getRange("A1").setValue("Include");
   sheet.getRange("B1").setValue("Account");
   sheet.getRange("C1").setValue("ID");
@@ -81,31 +78,39 @@ function formatFilterSheet(createNew) {
   sheet.getRange("S1").setValue("overrideOutputField");
   sheet.getRange("T1").setValue("caseSensitive");
   
+  // Set header formatting.
   headerRange.setFontWeight("bold");
   headerRange.setBackground("#4285F4");
   headerRange.setFontColor("#FFFFFF");
   
-  // Index Column: protect & set background & font color
+  // Index Column: protect & set background & font color.
   idCol.protect().setDescription("prevent others from modifying the ids");
   idCol.setBackground("#BABABA");
   idCol.setFontColor("#FFFFFF");
   
-  // Include Column: modify data validation values
+  // Include Column: modify data validation values.
   var includeValues = ['✓'];
   var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
   includeCol.setDataValidation(includeRule);
   
-  // Type Column: modify data validation values
+  // Type Column: modify data validation values.
   var typeValues = ['INCLUDE', 'EXCLUDE', 'LOWERCASE', 'UPPERCASE', 'SEARCH_AND_REPLACE', 'ADVANCED'];
   var typeRule = SpreadsheetApp.newDataValidation().requireValueInList(typeValues, true).build();
   typeCol.setDataValidation(typeRule);
   
+  // Set data validation for T/F columns (fieldA, fieldB, overrideOutputField, caseSensitive)
   var tfValues = ['TRUE', 'FALSE'];
   var tfRule = SpreadsheetApp.newDataValidation().requireValueInList(tfValues, true).build();
   fieldARequiredCol.setDataValidation(tfRule);
   fieldBRequiredCol.setDataValidation(tfRule);
   overrideOutputFieldCol.setDataValidation(tfRule);
   caseCol.setDataValidation(tfRule);
+  
+  // send Measurement Protocol hit to Google Analytics
+  var label = '';
+  var value = '';
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'format list sheet',label,value);
+  Logger.log(httpResponse);
   
   return sheet.getSheetName();
 }
