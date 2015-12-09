@@ -17,26 +17,32 @@ function onOpen(e) {
     var menu = ui.createAddonMenu();
     if (e && e.authMode == ScriptApp.AuthMode.NONE) {
       // Add a normal menu item (works in all authorization modes).
-      menu.addItem('List custom dimensions', 'requestCDList')
-      .addItem('Update custom dimensions', 'requestCDUpdate')
-      .addSeparator()
-      .addItem('List filters', 'requestFilterList')
+      menu.addItem('List filters', 'requestFilterList')
       .addItem('Update filters', 'requestFilterUpdate')
+      .addSeparator()
+      .addItem('List custom dimensions', 'requestDimensionList')
+      .addItem('Update custom dimensions', 'requestDimensionUpdate')
+      .addSeparator()
+      .addItem('List custom metrics', 'requestMetricList')
+      .addItem('Update custom metrics', 'requestMetricUpdate')
       .addSeparator()
       .addItem('About this Add-on','about');
     } else {
-      menu.addItem('List custom dimensions', 'requestCDList')
-      .addItem('Update custom dimensions', 'requestCDUpdate')
-      .addSeparator()
-      .addItem('List filters', 'requestFilterList')
+      menu.addItem('List filters', 'requestFilterList')
       .addItem('Update filters', 'requestFilterUpdate')
+      .addSeparator()
+      .addItem('List custom dimensions', 'requestDimensionList')
+      .addItem('Update custom dimensions', 'requestDimensionUpdate')
+      .addSeparator()
+      .addItem('List custom metrics', 'requestMetricList')
+      .addItem('Update custom metrics', 'requestMetricUpdate')
       .addSeparator()
       .addItem('About this Add-on','about');
     }
     menu.addToUi();
     
     // send Measurement Protocol hitType to Google Analytics
-      mphitType(ss.getUrl(),'open');    
+      mpHit(ss.getUrl(),'open');    
   } catch (e) {
     Browser.msgBox(e.message);
   }
@@ -47,7 +53,7 @@ function onOpen(e) {
 */
 function onEdit(e) {
   // send Measurement Protocol hitType to Google Analytics
-  mphitType(ss.getUrl(),'edit');
+  mpHit(ss.getUrl(),'edit');
 }
 
 /**************************************************************************
@@ -56,7 +62,7 @@ function onEdit(e) {
 function onInstall(e) {
   onOpen(e);
   // send Measurement Protocol hitType to Google Analytics
-  mphitType(ss.getUrl(),'install');
+  mpHit(ss.getUrl(),'install');
 }
 
 /**
