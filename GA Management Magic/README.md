@@ -5,18 +5,18 @@ The Google Analytics Management API can be accessed through a Google Sheet to li
 ###Installing the tool
 This tool can be installed through the Google Add-ons Web Store. It can also be installed by placing all the Apps Script files in this repository into [a script bound to a Google Sheet](https://developers.google.com/apps-script/guides/bound).
 
-##Working with Custom Dimensions in Google Sheets
-####Listing Custom Dimensions
-To list custom dimensions from a property (or list of properties), run the __List custom dimensions__ command from the add-on menu. At the prompt, enter one or more property ID(s) from which to list custom dimension settings in your sheet.
+##Working with Custom Dimensions/Metrics in Google Sheets
+####Listing Custom Dimensions/Metrics
+To list custom dimensions/metrics from a property (or list of properties), run the __List custom dimensions__ or __List custom metrics__ command from the add-on menu. At the prompt, enter one or more property ID(s) from which to list custom dimension/metric settings in your sheet.
 
 A new sheet will be added, formatted, and populated with the values from the properties listed.
 
-If you update any of these values, you can update the custom dimensions in your property by running the __Update custom dimensions__ function from the add-on menu.
+If you update any of these values, you can update the custom dimensions/metrics in your property by running the __Update custom dimensions__ or __Update custom metrics__ function from the add-on menu.
 
-####Updating Custom Dimensions
-To update custom dimension settings within a property or list of properties, run the __Update custom dimensions__ command from the add-on menu.
+####Updating Custom Dimensions/Metrics
+To update custom dimension/metric settings within a property or list of properties, run the __Update custom dimensions__ __Update custom metrics__ command from the add-on menu.
 
-If you do not have a pre-formatted sheet, the script will format a new sheet for you into which you can enter your custom dimension settings.
+If you do not have a pre-formatted sheet, the script will format a new sheet for you into which you can enter your custom dimension/metric settings.
 ---------
 ##Working with Filters in Google Sheets
 ####Listing Filters
