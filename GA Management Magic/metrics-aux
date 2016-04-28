@@ -9,13 +9,13 @@
 /**************************************************************************
 * Adds a formatted sheet to the spreadsheet to faciliate data management.
 */
-function formatDimensionSheet(createNew) {
+function formatMetricSheet(createNew) {
   // Get common values
   var ui = SpreadsheetApp.getUi();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var d = new Date();
-  var sheetName = "Dimensions@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
+  var sheetName = "Metrics@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
   
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;
@@ -43,7 +43,7 @@ function formatDimensionSheet(createNew) {
   }
   
   // set local vars
-  var cols = 6;
+  var cols = 9;
   var numRows = sheet.getMaxRows();
   var numCols = sheet.getMaxColumns();
   var deltaCols = numCols - cols;
@@ -61,28 +61,30 @@ function formatDimensionSheet(createNew) {
   
   var includeCol = sheet.getRange("A2:A");
   var propertyCol = sheet.getRange("B2:B");
+  var nameCol = sheet.getRange("C2:C");
   var indexCol = sheet.getRange("D2:D");
   var scopeCol = sheet.getRange("E2:E");
-  var activeCol = sheet.getRange("F2:F");
+  var typeCol = sheet.getRange("F2:F");
+  var minValueCol = sheet.getRange("G2:G");
+  var maxValueCol = sheet.getRange("H2:H");
+  var activeCol = sheet.getRange("I2:I");
   
   // set header values and formatting
   try {
     var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns()); //num columns should be 20
     ss.setNamedRange("header_row", headerRange);
     sheet.getRange("A1").setValue("Include in Update?");
-    sheet.getRange("B1").setValue("Property");
+    sheet.getRange("B1").setValue("Property ID");
     sheet.getRange("C1").setValue("Name");
     sheet.getRange("D1").setValue("Index");
     sheet.getRange("E1").setValue("Scope");
-    sheet.getRange("F1").setValue("Active");
+    sheet.getRange("F1").setValue("Type");
+    sheet.getRange("G1").setValue("Min Value");
+    sheet.getRange("H1").setValue("Max Value");
+    sheet.getRange("I1").setValue("Active");
     headerRange.setFontWeight("bold");
     headerRange.setBackground("#4285F4");
     headerRange.setFontColor("#FFFFFF");
-    
-    // Index Column: protect & set background & font color
-    indexCol.protect().setDescription("prevent others from modifying the CD indices");
-    indexCol.setBackground("#BABABA");
-    indexCol.setFontColor("#FFFFFF");
     
     // Include Column: modify data validation values
     var includeValues = ['✓', '✘'];
@@ -94,10 +96,17 @@ function formatDimensionSheet(createNew) {
     var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
     scopeCol.setDataValidation(scopeRule);
     
+    // Type Column: modify data validation values
+    var typeValues = ['INTEGER','CURRENCY', 'TIME'];
+    var typeRule = SpreadsheetApp.newDataValidation().requireValueInList(typeValues, true).build();
+    typeCol.setDataValidation(typeRule);
+    
+    
     // Active Column: modify data validation values
     var activeValues = ['TRUE','FALSE'];
     var activeRule = SpreadsheetApp.newDataValidation().requireValueInList(activeValues, true).build();
     activeCol.setDataValidation(activeRule);
+    
   } catch (e) {
     return "failed to set the header values and format ranges\n"+ e.message;
   }

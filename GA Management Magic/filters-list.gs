@@ -2,6 +2,7 @@
 *    List filters from a GA property
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
+* Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
 
@@ -12,7 +13,7 @@ function requestFilterList() {
   // Display a dialog box with a title, message, input field, and "OK" and "Cancel" buttons. The
   // user can also close the dialog by clicking the close button in its title bar.
   var ui = SpreadsheetApp.getUi();
-  var response = ui.prompt('Account ID', 'Enter the ID of one or more accounts from which to list filters: ', ui.ButtonSet.OK_CANCEL);
+  var response = ui.prompt('Account or Property ID', 'Enter the ID of one or more accounts or properties from which to list filters: ', ui.ButtonSet.OK_CANCEL);
   
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.OK) {
@@ -48,16 +49,18 @@ function requestFilterList() {
 function listFilters(accountList) {
   // set common values
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var include = "✓";
+  var include = '✘';
   var allFilters = [];
+  var accountList = ['2975581'];
   
   // Iterate through the array of accounts from which to list filters
   for (a = 0; a < accountList.length; a++) {
     var account = accountList[a];
-    
     // Process an account id if it matches a valid format.
-    if (account.match(/\d+/)) {
-      
+    if (account.match(/(UA-)?(\d+)(-\d+)?/)) {
+      var account = account.match(/(UA-)?(\d+)(-\d+)?/)[2];
+      debugger;
+    
       // Attempt to get filters from the Management API.
       try {
         var filterList = Analytics.Management.Filters.list(account);
@@ -164,12 +167,6 @@ function listFilters(accountList) {
     var sheet = ss.getSheetByName(formatFilterSheet(true));
     sheet.getRange(2,1,allFilters.length,allFilters[0].length).setValues(allFilters);
   } catch (e) {return "Error writing data to sheet: "+ e.message;}
-  
-  // send Measurement Protocol hit to Google Analytics
-  var label = accountList;
-  var value = accountList.length;
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'list filters',label,value);
-  Logger.log(httpResponse);
   
   return "success";
 }

@@ -47,7 +47,7 @@ function updateFilters() {
   for (var f = 0; f < filters.length; f++) {
     
     // Process values marked for inclusion.
-    if (filters[f][0]) {
+    if (filters[f][0] == '✓') {
       var account = filters[f][1];
       var filterId = filters[f][2].toString();
       var name = filters[f][3];
@@ -139,11 +139,6 @@ function updateFilters() {
     }
   }
   
-  // send Measurement Protocol hit to Google Analytics
-  var label = accountsUpdated;
-  var value = numFiltersUpdated;
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'update filters',label,value);
-  Logger.log(httpResponse);
-  
+ 
   return "success";
 }

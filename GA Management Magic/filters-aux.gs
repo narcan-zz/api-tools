@@ -2,6 +2,7 @@
 *    Auxiliary functions for Filter Management
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
+* Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
 
@@ -14,8 +15,8 @@ function formatFilterSheet(createNew) {
   // Get common values.
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var ui = SpreadsheetApp.getUi();
-  var date = new Date();
-  var sheetName = "Filters@"+ date.getTime();
+  var d = new Date();
+  var sheetName = "Filters@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
   var cols = 20;
   
   // normalize flag to create a new sheet
@@ -57,7 +58,7 @@ function formatFilterSheet(createNew) {
   ss.setNamedRange("header_row", headerRange);
   
   // Set header values.
-  sheet.getRange("A1").setValue("Include");
+  sheet.getRange("A1").setValue("Include in Update?");
   sheet.getRange("B1").setValue("Account");
   sheet.getRange("C1").setValue("ID");
   sheet.getRange("D1").setValue("Name");
@@ -89,7 +90,8 @@ function formatFilterSheet(createNew) {
   idCol.setFontColor("#FFFFFF");
   
   // Include Column: modify data validation values.
-  var includeValues = ['✓'];
+  
+  var includeValues = ['✓', '✘'];
   var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
   includeCol.setDataValidation(includeRule);
   
@@ -105,12 +107,6 @@ function formatFilterSheet(createNew) {
   fieldBRequiredCol.setDataValidation(tfRule);
   overrideOutputFieldCol.setDataValidation(tfRule);
   caseCol.setDataValidation(tfRule);
-  
-  // send Measurement Protocol hit to Google Analytics
-  var label = '';
-  var value = '';
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'format list sheet',label,value);
-  Logger.log(httpResponse);
   
   return sheet.getSheetName();
 }

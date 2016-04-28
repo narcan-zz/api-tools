@@ -2,6 +2,7 @@
 *    Lists custom dimensions from a GA property
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
+* Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
 
@@ -46,7 +47,7 @@ function requestCDList() {
 */
 function listCustomDimensions(propertyList) {
   // Set common values
-  var include = "✓";
+  var include = "✘";
   var allDimensions = [];
   var dataColumns = 6;
   
@@ -59,7 +60,6 @@ function listCustomDimensions(propertyList) {
       
       // Extract the account from the property id
       var account = property.match(/UA-(\d+)-\d+/)[1];
-      
       // Attempt to get property information from the Management API
       try {
         var customDimensionList = Analytics.Management.CustomDimensions.list(account, property);
@@ -93,12 +93,6 @@ function listCustomDimensions(propertyList) {
   } catch (e) {
     return e.message;
   }
-  
-  // send Measurement Protocol event hit to Google Analytics
-  var label = propertyList;
-  var value = propertyList.length;
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'list custom dimensions',label,value);
-  Logger.log(httpResponse);
   
   return "success";
 }
