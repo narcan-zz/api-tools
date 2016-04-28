@@ -16,7 +16,8 @@
 
 <h3>Updating Custom Dimensions</h3>
 <p>To update custom dimension settings within a property or list of properties, run the <b>Update custom dimensions</b> command from the add-on menu.</p>
-<p>If you do not have a preformatted sheet, the script will format a new sheet for you into which you can enter your custom dimension settings.</p>
+<p>If you do not have a preformatted sheet, the script will format a new sheet for you into which you can enter your custom dimension settings.
+Remeber to toggle '✘' from 'Include in Update?' column to '✓' to include the rows in the update call. </p>
 <hr>
 
 <h2>Working with Filters in Google Sheets</h2>
@@ -26,9 +27,29 @@
 <p>If you modify any of these values, you can update the filters in your account by running the <b>Update filters</b> function from the add-on menu.</p>
 
 <h3>Updating Filters</h3>
-<p>To update filter settings from the sheet to an account or list of accounts, run the <b>Update filters</b> command from the add-on menu. At the prompt, enter the account IDs (separated by commas) of the accounts that should be updated with the filter settings in your sheet.</p>
-
+<p>To update filter settings from the sheet to an account or list of accounts, run the <b>Update filters</b> command from the add-on menu. At the prompt, enter the account IDs (separated by commas) of the accounts that should be updated with the filter settings in your sheet.
+Remeber to toggle '✘' from 'Include in Update?' column to '✓' to include the rows in the update call. 
+</p>
 <br>
+
+<h2>Working with Custom Metrics in Google Sheets</h2>
+
+<h3>Listing Custom Metrics</h3>
+<p>To list custom Metrics from a property (or list of properties), run the <b>List custom metrics</b> command from the add-on menu. At the prompt, enter one or more property ID(s) from which to list custom dimension settings in your sheet.</p>
+<p>A new sheet will be added, formatted, and populated with the values from the properties listed.</p>
+<p>If you update any of these values, you can update the custom dimensions in your property by running the <b>Update custom metrics</b> function from the add-on menu.</p>
+
+<h3>Updating Custom Metrics</h3>
+<p>To update custom metrics settings within a property or list of properties, run the <b>Update custom metrics</b> command from the add-on menu.</p>
+<p>If you do not have a preformatted sheet, the script will format a new sheet for you into which you can enter your custom metrics settings.
+Remeber to toggle '✘' from 'Include in Update?' column to '✓' to include the rows in the update call. </p>
+<br>
+
+<h2>NEW: Listing Users</h2>
+<p>To list users for a particular view, run the <b>List Users</b> command from the add-on menu.</p>
+<p>If you do not have a preformatted sheet, the script will format a new sheet. Note currently, the function only list users for particular views, we may add update user function later.</p>
+<hr>
+
 <input type="button" value="Done" onclick="google.script.host.close()"/>
   </body>
 </html>

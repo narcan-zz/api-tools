@@ -1,0 +1,115 @@
+/* Management Magic for Google Analytics
+*    Auxiliary functions for CD Management
+*
+* Copyright ©2015 Pedro Avila (pdro@google.com)
+* Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
+***************************************************************************/
+
+
+/**************************************************************************
+* Adds a formatted sheet to the spreadsheet to faciliate data management.
+*/
+function formatMetricSheet(createNew) {
+  // Get common values
+  var ui = SpreadsheetApp.getUi();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  var d = new Date();
+  var sheetName = "Metrics@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
+  
+  // Normalize/format the values of the parameters
+  createNew = (createNew === undefined) ? false : createNew;
+  
+  // Insert a new sheet or warn the user that formatting will erase data on the current sheet
+  try {
+    if (createNew) {
+      sheet = ss.insertSheet(sheetName, 0);
+    } else if (!createNew) {
+      // Show warning to user and ask to proceed
+      var response = ui.alert("WARNING: This will erase all data on the current sheet", "Would you like to proceed?", ui.ButtonSet.YES_NO);
+      if (response == ui.Button.YES) {
+        sheet.setName(sheetName);
+      } else if (response == ui.Button.NO) {
+        ui.alert('Format cancelled.');
+        return sheet;
+      } else {
+        Logger.log('The user clicked the close button in the dialog\'s title bar.');
+        return sheet;
+      }
+    }
+  } catch (error) {
+    Browser.msgBox(error.message);
+    return sheet;
+  }
+  
+  // set local vars
+  var cols = 9;
+  var numRows = sheet.getMaxRows();
+  var numCols = sheet.getMaxColumns();
+  var deltaCols = numCols - cols;
+  
+  // set the number of columns
+  try {
+    if (deltaCols > 0) {
+      sheet.deleteColumns(cols, deltaCols);
+    } else if (deltaCols < 0) {
+      sheet.insertColumnsAfter(numCols, -deltaCols);
+    }
+  } catch (e) {
+    return "failed to set the number of columns\n"+ e.message;
+  }
+  
+  var includeCol = sheet.getRange("A2:A");
+  var propertyCol = sheet.getRange("B2:B");
+  var nameCol = sheet.getRange("C2:C");
+  var indexCol = sheet.getRange("D2:D");
+  var scopeCol = sheet.getRange("E2:E");
+  var typeCol = sheet.getRange("F2:F");
+  var minValueCol = sheet.getRange("G2:G");
+  var maxValueCol = sheet.getRange("H2:H");
+  var activeCol = sheet.getRange("I2:I");
+  
+  // set header values and formatting
+  try {
+    var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns()); //num columns should be 20
+    ss.setNamedRange("header_row", headerRange);
+    sheet.getRange("A1").setValue("Include in Update?");
+    sheet.getRange("B1").setValue("Property ID");
+    sheet.getRange("C1").setValue("Name");
+    sheet.getRange("D1").setValue("Index");
+    sheet.getRange("E1").setValue("Scope");
+    sheet.getRange("F1").setValue("Type");
+    sheet.getRange("G1").setValue("Min Value");
+    sheet.getRange("H1").setValue("Max Value");
+    sheet.getRange("I1").setValue("Active");
+    headerRange.setFontWeight("bold");
+    headerRange.setBackground("#4285F4");
+    headerRange.setFontColor("#FFFFFF");
+    
+    // Include Column: modify data validation values
+    var includeValues = ['✓', '✘'];
+    var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
+    includeCol.setDataValidation(includeRule);
+    
+    // Scope Column: modify data validation values
+    var scopeValues = ['USER','SESSION','HIT','PRODUCT'];
+    var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
+    scopeCol.setDataValidation(scopeRule);
+    
+    // Type Column: modify data validation values
+    var typeValues = ['INTEGER','CURRENCY', 'TIME'];
+    var typeRule = SpreadsheetApp.newDataValidation().requireValueInList(typeValues, true).build();
+    typeCol.setDataValidation(typeRule);
+    
+    
+    // Active Column: modify data validation values
+    var activeValues = ['TRUE','FALSE'];
+    var activeRule = SpreadsheetApp.newDataValidation().requireValueInList(activeValues, true).build();
+    activeCol.setDataValidation(activeRule);
+    
+  } catch (e) {
+    return "failed to set the header values and format ranges\n"+ e.message;
+  }
+  
+  return sheet;
+}

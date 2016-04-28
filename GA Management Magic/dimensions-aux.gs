@@ -1,111 +1,119 @@
 /* Management Magic for Google Analytics
-*    Auxiliary functions for CD Management
+*    Updates custom dimensions from a GA property
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
+* Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
 
 /**************************************************************************
-* Adds a formatted sheet to the spreadsheet to faciliate data management.
+* Obtains input from user necessary for updating custom dimensions.
 */
-function formatDimensionSheet(createNew) {
-  // Get common values
-  var ui = SpreadsheetApp.getUi();
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getActiveSheet();
-  var date = new Date();
-  var sheetName = "Dimensions@"+ date.getTime();
+function requestCDUpdate() {
+  // Check that the necessary named range exists.
+ 
+  if (SpreadsheetApp.getActiveSpreadsheet().getRangeByName("header_row")) {
+    
+    // Update custom dimensions from the sheet.
+    var updateDimensionResponse = updateDimensions();
+    
+    // Output errors and log successes.
+    if (updateDimensionResponse != "success") {
+      Browser.msgBox(updateDimensionResponse);
+    } else {
+      Logger.log("Update custom dimensions response: "+ updateDimensionResponse)
+    }
+  }
   
-  // Normalize/format the values of the parameters
-  createNew = (createNew === undefined) ? false : createNew;
+  // If there is no named range (necessary to update values), format the sheet and display instructions to the user
+  else {
+    var sheet = formatDimensionSheet(true);
+    Browser.msgBox("Enter dimension values into the sheet provided before requesting to update dimensions.")
+  }
+}
+
+/**************************************************************************
+* Updates dimension settings from the active sheet to a property.
+* @return {string} Operation output ("success" or error message)
+*/
+function updateDimensions() {
+  // set common values
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  var dataColumns = dataRange.getNumColumns(); // should be 5
+  var dataRows = dataRange.getNumRows() - 1;
+  var maxRows = (propertyType == "PREMIUM") ? 200 : 20;
+  var numDimensionsUpdated = 0;
+  var propertiesUpdated = [];
   
-  // Insert a new sheet or warn the user that formatting will erase data on the current sheet
-  try {
-    if (createNew) {
-      sheet = ss.insertSheet(sheetName, 0);
-    } else if (!createNew) {
-      // Show warning to user and ask to proceed
-      var response = ui.alert("WARNING: This will erase all data on the current sheet", "Would you like to proceed?", ui.ButtonSet.YES_NO);
-      if (response == ui.Button.YES) {
-        sheet.setName(sheetName);
-      } else if (response == ui.Button.NO) {
-        ui.alert('Format cancelled.');
-        return sheet;
-      } else {
-        Logger.log('The user clicked the close button in the dialog\'s title bar.');
-        return sheet;
+  // Capture the sheet values.
+  var dimensions = sheet.getRange(2,1,dataRows,dataColumns).getValues();
+  
+  // Iterate through rows of values in the sheet.
+  for (var d = 0; d < dimensions.length; d++) {
+    
+    // Process values marked for inclusion.
+    if (dimensions[d][0] == '✓') {
+      var property = dimensions[d][1];
+      var account = property.match(/UA-(.+)-.*/)[1];
+      var name = dimensions[d][2], index = dimensions[d][3], scope=dimensions[d][4], active=dimensions[d][5];
+      var dimensionId="ga:dimension"+index;
+      
+      // Increment the number of dimensions updated and add the property to the array of updated properties if it's not already there.
+      numDimensionsUpdated++;
+      if (propertiesUpdated.indexOf(property) < 0) propertiesUpdated.push(property);
+      
+      // Attempt to get the property type from the Property API and set the maximum number of dimensions accordingly.
+      try {
+        var propertyType = Analytics.Management.Webproperties.get(account, property).level;
+      } catch (e) {
+        return "failed to get property level for "+ property;
       }
+      var maxDimensions = (propertyType == "PREMIUM") ? 200 : 20;
+      
+      // If there is no dimension index, return an error to the user.
+      if (index == "" || index == undefined) {
+        return "Index for dimension '"+ name +" cannot be empty";
+      }
+      
+      // If the index is higher than it can be for the property (type), return an error to the user.
+      else if ((propertyType == "PREMIUM" && index > 200) || (propertyType == "STANDARD" && index > 20)) {
+        return "Index value ("+ index 
+        +") for dimension '"+ name +"' is too high ("
+        + property +" is a "+ propertyType +" property and can only have up to "
+        + maxDimensions +"dimensions)";
+      }
+      
+      // If the index is valid, push the value to Google Analytics.
+      else {
+        
+        // Attempt to get the index for the dimension in the sheet (the API throws an exception when no dimension exists for the index).
+        try {
+          
+          // If the index exists, set the necessary values update the dimension
+          if (Analytics.Management.CustomDimensions.get(account, property, dimensionId).index) {
+            var resource = {"name":name, "scope":scope, "active":active};
+            var options = {ignoreCustomDataSourceLinks: true};
+            
+            // Attempt to update the dimension through the API
+            try { Analytics.Management.CustomDimensions.update(resource,account,property,dimensionId,options);
+                } catch (e) {return "failed to update all custom dimensions\n"+ e.message}
+          }
+        }
+        
+        // As noted in the try-block comment above, if no dimension exists, the API throws an exception
+        // if no dimension exists, catch this exception and set the necessary values to insert the dimension
+        catch (e) {
+          if (e.message.match(/ga:dimension(\d)+ not found/)) {
+            var resource = {"index":index, "name":name, "scope":scope, "active":active};
+            
+            // Attempt to insert the dimension
+            try { Analytics.Management.CustomDimensions.insert(resource,account,property); } catch (e) {return "failed to insert all custom dimensions\n"+ e.message}
+          } else return "failed to insert all custom dimensions\n"+ e.message;
+        }
+      }        
     }
-  } catch (error) {
-    Browser.msgBox(error.message);
-    return sheet;
   }
   
-  // set local vars
-  var cols = 6;
-  var numRows = sheet.getMaxRows();
-  var numCols = sheet.getMaxColumns();
-  var deltaCols = numCols - cols;
-  
-  // set the number of columns
-  try {
-    if (deltaCols > 0) {
-      sheet.deleteColumns(cols, deltaCols);
-    } else if (deltaCols < 0) {
-      sheet.insertColumnsAfter(numCols, -deltaCols);
-    }
-  } catch (e) {
-    return "failed to set the number of columns\n"+ e.message;
-  }
-  
-  var includeCol = sheet.getRange("A2:A");
-  var propertyCol = sheet.getRange("B2:B");
-  var indexCol = sheet.getRange("D2:D");
-  var scopeCol = sheet.getRange("E2:E");
-  var activeCol = sheet.getRange("F2:F");
-  
-  // set header values and formatting
-  try {
-    var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns()); //num columns should be 20
-    ss.setNamedRange("header_row", headerRange);
-    sheet.getRange("A1").setValue("Include");
-    sheet.getRange("B1").setValue("Property");
-    sheet.getRange("C1").setValue("Name");
-    sheet.getRange("D1").setValue("Index");
-    sheet.getRange("E1").setValue("Scope");
-    sheet.getRange("F1").setValue("Active");
-    headerRange.setFontWeight("bold");
-    headerRange.setBackground("#4285F4");
-    headerRange.setFontColor("#FFFFFF");
-    
-    // Index Column: protect & set background & font color
-    indexCol.protect().setDescription("prevent others from modifying the CD indices");
-    indexCol.setBackground("#BABABA");
-    indexCol.setFontColor("#FFFFFF");
-    
-    // Include Column: modify data validation values
-    var includeValues = ['✓'];
-    var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
-    includeCol.setDataValidation(includeRule);
-    
-    // Scope Column: modify data validation values
-    var scopeValues = ['USER','SESSION','HIT','PRODUCT'];
-    var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
-    scopeCol.setDataValidation(scopeRule);
-    
-    // Active Column: modify data validation values
-    var activeValues = ['TRUE','FALSE'];
-    var activeRule = SpreadsheetApp.newDataValidation().requireValueInList(activeValues, true).build();
-    activeCol.setDataValidation(activeRule);
-  } catch (e) {
-    return "failed to set the header values and format ranges\n"+ e.message;
-  }
-  
-  // send Measurement Protocol hit to Google Analytics
-  var label = '';
-  var value = '';
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'format dimension sheet',label,value);
-  Logger.log(httpResponse);
-  
-  return sheet;
+  return "success";
 }
