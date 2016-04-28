@@ -16,7 +16,7 @@ function formatFilterSheet(createNew) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var ui = SpreadsheetApp.getUi();
   var d = new Date();
-  var sheetName = "Metrics@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
+  var sheetName = "Filters@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
   var cols = 20;
   
   // normalize flag to create a new sheet
