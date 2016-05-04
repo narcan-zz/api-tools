@@ -91,6 +91,11 @@ function formatMetricSheet(createNew) {
     var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
     includeCol.setDataValidation(includeRule);
     
+    // Index Column: protect & set background & font color
+    indexCol.protect().setDescription("prevent others from modifying the CD indices");
+    indexCol.setBackground("#BABABA");
+    indexCol.setFontColor("#FFFFFF");
+    
     // Scope Column: modify data validation values
     var scopeValues = ['USER','SESSION','HIT','PRODUCT'];
     var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
