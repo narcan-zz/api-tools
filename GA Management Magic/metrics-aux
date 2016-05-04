@@ -15,7 +15,7 @@ function formatMetricSheet(createNew) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var d = new Date();
-  var sheetName = "Metrics@"+ d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() +'-' + d.getMilliseconds();
+  var sheetName = "Metrics@"+ d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+d.getDate() +'-' + d.getMilliseconds();
   
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;

@@ -1,7 +1,6 @@
 /* Management Magic for Google Analytics
-*    Auxiliary functions for CD Management
+*    Auxiliary functions for User Management
 *
-* Copyright ©2015 Pedro Avila (pdro@google.com)
 * Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
@@ -9,13 +8,13 @@
 /**************************************************************************
 * Adds a formatted sheet to the spreadsheet to faciliate data management.
 */
-function formatDimensionSheet(createNew) {
+function formatUserSheet(createNew) {
   // Get common values
   var ui = SpreadsheetApp.getUi();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var d = new Date();
-  var sheetName = "Dimensions@"+ d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+d.getDate() +'-' + d.getMilliseconds();
+  var sheetName = "Users@"+ d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+d.getDate() +'-' + d.getMilliseconds();
   
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;
@@ -43,7 +42,7 @@ function formatDimensionSheet(createNew) {
   }
   
   // set local vars
-  var cols = 6;
+  var cols = 5;
   var numRows = sheet.getMaxRows();
   var numCols = sheet.getMaxColumns();
   var deltaCols = numCols - cols;
@@ -61,43 +60,33 @@ function formatDimensionSheet(createNew) {
   
   var includeCol = sheet.getRange("A2:A");
   var propertyCol = sheet.getRange("B2:B");
-  var indexCol = sheet.getRange("D2:D");
-  var scopeCol = sheet.getRange("E2:E");
-  var activeCol = sheet.getRange("F2:F");
+  var viewCol = sheet.getRange("C2:C");
+  var emailCol = sheet.getRange("D2:D");
+  var permissionCol = sheet.getRange("E2:E");
   
   // set header values and formatting
   try {
     var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns()); //num columns should be 20
     ss.setNamedRange("header_row", headerRange);
     sheet.getRange("A1").setValue("Include in Update?");
-    sheet.getRange("B1").setValue("Property");
-    sheet.getRange("C1").setValue("Name");
-    sheet.getRange("D1").setValue("Index");
-    sheet.getRange("E1").setValue("Scope");
-    sheet.getRange("F1").setValue("Active");
+    sheet.getRange("B1").setValue("Property ID");
+    sheet.getRange("C1").setValue("View ID");
+    sheet.getRange("D1").setValue("Email");
+    sheet.getRange("E1").setValue("Permission");
     headerRange.setFontWeight("bold");
     headerRange.setBackground("#4285F4");
     headerRange.setFontColor("#FFFFFF");
     
-    // Index Column: protect & set background & font color
-    indexCol.protect().setDescription("prevent others from modifying the CD indices");
-    indexCol.setBackground("#BABABA");
-    indexCol.setFontColor("#FFFFFF");
-    
     // Include Column: modify data validation values
-    var includeValues = ['✓', '✘'];
+    var includeValues = ['✘', '✓'];
     var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
     includeCol.setDataValidation(includeRule);
     
-    // Scope Column: modify data validation values
-    var scopeValues = ['USER','SESSION','HIT','PRODUCT'];
-    var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
-    scopeCol.setDataValidation(scopeRule);
+    // Permission Column: modify data validation values
+    var permissionValues = ['MANAGE_USERS','READ_AND_ANALYZE', 'COLLABORATE,EDIT,MANAGE_USERS,READ_AND_ANALYZE', 'COLLABORATE,READ_AND_ANALYZE', 'COLLABORATE,EDIT,READ_AND_ANALYZE', 'COLLABORATE,MANAGE_USERS,READ_AND_ANALYZE'];
+    var permissionRule = SpreadsheetApp.newDataValidation().requireValueInList(permissionValues, true).build();
+    permissionCol.setDataValidation(permissionRule);
     
-    // Active Column: modify data validation values
-    var activeValues = ['TRUE','FALSE'];
-    var activeRule = SpreadsheetApp.newDataValidation().requireValueInList(activeValues, true).build();
-    activeCol.setDataValidation(activeRule);
   } catch (e) {
     return "failed to set the header values and format ranges\n"+ e.message;
   }

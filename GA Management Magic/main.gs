@@ -29,6 +29,8 @@ function onOpen(e) {
       .addItem('List custom metrics', 'requestCMList')
       .addItem('Update custom metrics', 'requestCMUpdate')
       .addSeparator()
+      .addItem('List Account Summary', 'accountSummary')
+      .addSeparator()
       .addItem('About this Add-on','about');
     } else {
       menu.addItem('List filters', 'requestFilterList')
@@ -41,6 +43,8 @@ function onOpen(e) {
       .addSeparator()
       .addItem('List custom metrics', 'requestCMList')
       .addItem('Update custom metrics', 'requestCMUpdate')
+      .addSeparator()
+      .addItem('List Account Summary', 'accountSummary')
       .addSeparator()
       .addItem('About this Add-on','about');
     }
