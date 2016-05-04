@@ -1,34 +1,36 @@
 /* Management Magic for Google Analytics
-*    Lists custom dimensions from a GA property
+*  Functions for User Management
 *
-* Copyright ©2015 Pedro Avila (pdro@google.com)
 * Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
 
 /**************************************************************************
-* Obtains input from user necessary for listing custom dimensions.
 */
-function requestCDList() {
+
+function requestUserList() {
   // Display a dialog box with a title, message, input field, and "OK" and "Cancel" buttons. The
   // user can also close the dialog by clicking the close button in its title bar.
   var ui = SpreadsheetApp.getUi();
   var response = ui.prompt('Property ID', 'Enter the ID of the property from which to list custom dimensions (UA-xxxx-y): ', ui.ButtonSet.OK_CANCEL);
+  var view = ui.prompt('View ID', 'Enter the ID of the view from which to list users: ', ui.ButtonSet.OK_CANCEL);
   
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.OK) {
     // Construct the array of one or more properties from the user's input.
-    var propertyList = response.getResponseText();
-    var propertyListArray = propertyList.split(/\s*,\s*/);
+    var propertyID = response.getResponseText();
+
+    var viewList = view.getResponseText();    
+    var viewListArray = viewList.split(/\s*,\s*/);
     
-    // List custom dimensions from all properties entered by the user.
-    var listResponse = listCustomDimensions(propertyListArray);
+    // List users from all properties entered by the user.
+    var listResponse = listUsers(propertyID, viewListArray);
     
     // Output errors and log successes.
     if (listResponse != "success") {
       Browser.msgBox(listResponse);
     } else {
-      Logger.log("List custom dimensions response: "+ listResponse)
+      Logger.log("List users response: "+ listResponse)
     }
   }
   
@@ -45,51 +47,53 @@ function requestCDList() {
 * @param {string} property The tracking ID of the GA property
 * @return {string} Operation output ('success' or error message)
 */
-function listCustomDimensions(propertyList) {
+function listUsers(propertyID, viewListArray) {
   // Set common values
   var include = "✘";
-  var allDimensions = [];
-  var dataColumns = 6;
+  var allUsers = [];
+  var dataColumns = 5;
   
-  // Iterate through the array of properties from which to list dimensions
-  for (p = 0; p < propertyList.length; p++) {
-    var property = propertyList[p];
+  // Iterate through the array of view IDs from which to list users
+  for (p = 0; p < viewListArray.length; p++) {
+    var viewID = viewListArray[p];
     
-    // Process a property id if it matches a valid format.
-    if (property.match(/UA-\d+-\d+/)) {
+    // Process a view id is not null.
+    if (viewID) {
       
       // Extract the account from the property id
-      var account = property.match(/UA-(\d+)-\d+/)[1];
+      var account = propertyID.match(/UA-(\d+)-\d+/)[1];
       // Attempt to get property information from the Management API
       try {
-        var customDimensionList = Analytics.Management.CustomDimensions.list(account, property);
+        var usersList = Analytics.Management.ProfileUserLinks.list(
+          account = account, 
+          property = propertyID,
+          view = viewID);
       } catch (e) {
         return e.message;
       }
       
       // Attempt to store the information received from the Management API in an array
       try {
-        var dimensions = [];
-        
+        var users = [];
         // Parse each result of the API request and push it to an array
-        for (var i = 0; i < customDimensionList.totalResults; i++) {
-          var cd = customDimensionList.items[i];
-          dimensions[i] = [include,cd.webPropertyId,cd.name,cd.index,cd.scope,cd.active];
-          allDimensions.push(dimensions[i]); 
+        for (var i = 0; i < usersList.totalResults; i++) {
+          var user = usersList.items[i];
+          users[i] = [include,propertyID, viewID ,user.userRef.email, user.permissions.effective.toString()];
+          allUsers.push(users[i]); 
         }
       } catch (e) {
         return e.message;
       }
     }
     // Return an error message if the property id does not match the correct format.
-    else return property +" is an invalid property format";
+    else return viewID +" is an invalid view ID format";
   }
   
   // Insert the values processed from the API into a formatted sheet
   try {    
     // Set the values in the sheet
-    var sheet = formatDimensionSheet(true);
-    sheet.getRange(2,1,allDimensions.length,dataColumns).setValues(allDimensions);
+    var sheet = formatUserSheet(true);
+    sheet.getRange(2,1,allUsers.length,dataColumns).setValues(allUsers);
   } catch (e) {
     return e.message;
   }

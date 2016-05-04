@@ -2,6 +2,7 @@
 *    Updates custom dimensions from a GA property
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
+* Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
 
@@ -10,6 +11,7 @@
 */
 function requestCDUpdate() {
   // Check that the necessary named range exists.
+ 
   if (SpreadsheetApp.getActiveSpreadsheet().getRangeByName("header_row")) {
     
     // Update custom dimensions from the sheet.
@@ -51,7 +53,7 @@ function updateDimensions() {
   for (var d = 0; d < dimensions.length; d++) {
     
     // Process values marked for inclusion.
-    if (dimensions[d][0]) {
+    if (dimensions[d][0] == '✓') {
       var property = dimensions[d][1];
       var account = property.match(/UA-(.+)-.*/)[1];
       var name = dimensions[d][2], index = dimensions[d][3], scope=dimensions[d][4], active=dimensions[d][5];
@@ -105,19 +107,13 @@ function updateDimensions() {
           if (e.message.match(/ga:dimension(\d)+ not found/)) {
             var resource = {"index":index, "name":name, "scope":scope, "active":active};
             
-            // Attempt to inser the dimension
+            // Attempt to insert the dimension
             try { Analytics.Management.CustomDimensions.insert(resource,account,property); } catch (e) {return "failed to insert all custom dimensions\n"+ e.message}
           } else return "failed to insert all custom dimensions\n"+ e.message;
         }
       }        
     }
   }
-  
-  // send Measurement Protocol hit to Google Analytics
-  var label = propertiesUpdated;
-  var value = numDimensionsUpdated;
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'update custom dimensions',label,value);
-  Logger.log(httpResponse);
   
   return "success";
 }
