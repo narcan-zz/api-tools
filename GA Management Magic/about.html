@@ -4,8 +4,10 @@
     <base target="_top">
   </head>
   <body>
-<h1>GA Management Magic</h1>
-<p>The Google Analytics Management API can be accessed through a Google Sheet to list and update settings data in a tabular format. This application lists management entities from Google Analytics into your sheet, and allows you to update settings based on edits or additions in your sheet.</p>
+<h1>GA Management Add-on</h1>
+<p>
+	The Google Analytics Management Add-on leverages the Google Analytics Management API to retrieve your GA account data into Google Sheet to list and update settings right from the sheet. This application lists management entities from Google Analytics into your sheet, and allows you to update settings based on edits or additions in your sheet.
+</p>
 <hr>
 <h2>Working with Custom Dimensions in Google Sheets</h2>
 
@@ -50,8 +52,13 @@ Remeber to toggle '✘' from 'Include in Update?' column to '✓' to include the
 <p>If you do not have a preformatted sheet, the script will format a new sheet. Note currently, the function only list users for particular views, we may add update user function later.</p>
 <hr>
 
+<br>
+
+<h2>NEW: Account Summary</h2>
+<p>To list the account, property and views you have access to, run the <b>List Account Summary</b> command from the add-on menu.</p>
+<p>If you do not have a preformatted sheet, the script will format a new sheet. Note currently</p>
+<hr>
+
 <input type="button" value="Done" onclick="google.script.host.close()"/>
   </body>
 </html>
-
-

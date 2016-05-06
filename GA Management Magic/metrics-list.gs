@@ -92,7 +92,7 @@ function listCustomMetrics(propertyList) {
   // Insert the values processed from the API into a formatted sheet
   try {    
     // Set the values in the sheet
-    var sheet = formatMetricSheet(true);
+    var sheet = formatMetricSheet(false);
     sheet.getRange(2,1,allMetrics.length,dataColumns).setValues(allMetrics);
   } catch (e) {
     return e.message;

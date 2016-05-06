@@ -71,7 +71,7 @@ function accountSummary() {
   // Insert the values processed from the API into a formatted sheet
   try {    
     // Set the values in the sheet
-    var sheet = formatAccountSummarySheet(true);
+    var sheet = formatAccountSummarySheet(false);
     sheet.getRange(2,1,allAccounts.length,dataColumns).setValues(allAccounts);
   } catch (e) {
     return e.message;

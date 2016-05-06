@@ -92,7 +92,7 @@ function listUsers(propertyID, viewListArray) {
   // Insert the values processed from the API into a formatted sheet
   try {    
     // Set the values in the sheet
-    var sheet = formatUserSheet(true);
+    var sheet = formatUserSheet(false);
     sheet.getRange(2,1,allUsers.length,dataColumns).setValues(allUsers);
   } catch (e) {
     return e.message;

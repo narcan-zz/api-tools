@@ -14,7 +14,7 @@ function formatAccountSummarySheet(createNew) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var d = new Date();
-  var sheetName = "AccountSummary@"+ d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+d.getDate() +'-' + d.getMilliseconds();
+  var sheetName = "AccountSummary@"+ d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+ d.getDate() +'_' + d.getHours()+':'+ d.getSeconds();
   
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;

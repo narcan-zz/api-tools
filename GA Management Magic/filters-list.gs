@@ -164,7 +164,7 @@ function listFilters(accountList) {
   
   // Attempt to insert the values processed from the API into the sheet
   try {
-    var sheet = ss.getSheetByName(formatFilterSheet(true));
+    var sheet = ss.getSheetByName(formatFilterSheet(false));
     sheet.getRange(2,1,allFilters.length,allFilters[0].length).setValues(allFilters);
   } catch (e) {return "Error writing data to sheet: "+ e.message;}
   

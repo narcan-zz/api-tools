@@ -88,7 +88,7 @@ function listCustomDimensions(propertyList) {
   // Insert the values processed from the API into a formatted sheet
   try {    
     // Set the values in the sheet
-    var sheet = formatDimensionSheet(true);
+    var sheet = formatDimensionSheet(false);
     sheet.getRange(2,1,allDimensions.length,dataColumns).setValues(allDimensions);
   } catch (e) {
     return e.message;
