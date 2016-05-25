@@ -1,7 +1,6 @@
 /* Management Magic for Google Analytics
 *    Auxiliary functions for CD Management
 *
-* Copyright ©2015 Pedro Avila (pdro@google.com)
 * Copyright ©2016 Gary Mu (Gary7135[at]gmail[dot]com)
 ***************************************************************************/
 
@@ -9,13 +8,13 @@
 /**************************************************************************
 * Adds a formatted sheet to the spreadsheet to faciliate data management.
 */
-function formatDimensionSheet(createNew) {
+function formatAccountSummarySheet(createNew) {
   // Get common values
   var ui = SpreadsheetApp.getUi();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var d = new Date();
-  var sheetName = "Dimensions@"+  d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+d.getDate() +'_' + d.getHours()+':'+d.getSeconds();
+  var sheetName = "AccountSummary@"+ d.getFullYear()+'-'+ (d.getMonth()+1) +'-'+ d.getDate() +'_' + d.getHours()+':'+ d.getSeconds();
   
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;
@@ -43,7 +42,7 @@ function formatDimensionSheet(createNew) {
   }
   
   // set local vars
-  var cols = 6;
+  var cols = 8;
   var numRows = sheet.getMaxRows();
   var numCols = sheet.getMaxColumns();
   var deltaCols = numCols - cols;
@@ -59,45 +58,31 @@ function formatDimensionSheet(createNew) {
     return "failed to set the number of columns\n"+ e.message;
   }
   
-  var includeCol = sheet.getRange("A2:A");
-  var propertyCol = sheet.getRange("B2:B");
-  var indexCol = sheet.getRange("D2:D");
-  var scopeCol = sheet.getRange("E2:E");
-  var activeCol = sheet.getRange("F2:F");
+  var accountIDCol = sheet.getRange("A2:A");
+  var accountNameCol = sheet.getRange("B2:B");
+  var propertyIDCol = sheet.getRange("C2:C");
+  var propertyNameCol = sheet.getRange("D2:D");
+  var propertyLevelCol = sheet.getRange("E2:E");
+  var viewIDCol = sheet.getRange("F2:F");
+  var viewNameCol = sheet.getRange("G2:G");
+  var viewTypeCol = sheet.getRange("H2:H");
   
   // set header values and formatting
   try {
     var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns()); //num columns should be 20
     ss.setNamedRange("header_row", headerRange);
-    sheet.getRange("A1").setValue("Include in Update?");
-    sheet.getRange("B1").setValue("Property");
-    sheet.getRange("C1").setValue("Name");
-    sheet.getRange("D1").setValue("Index");
-    sheet.getRange("E1").setValue("Scope");
-    sheet.getRange("F1").setValue("Active");
+    sheet.getRange("A1").setValue("Account ID");
+    sheet.getRange("B1").setValue("Account Name");
+    sheet.getRange("C1").setValue("Property ID");
+    sheet.getRange("D1").setValue("Property Name");
+    sheet.getRange("E1").setValue("Property Level");
+    sheet.getRange("F1").setValue("View ID");
+    sheet.getRange("G1").setValue("View Name");
+    sheet.getRange("H1").setValue("View Type");
     headerRange.setFontWeight("bold");
     headerRange.setBackground("#4285F4");
     headerRange.setFontColor("#FFFFFF");
     
-    // Index Column: protect & set background & font color
-    indexCol.protect().setDescription("prevent others from modifying the CD indices");
-    indexCol.setBackground("#BABABA");
-    indexCol.setFontColor("#FFFFFF");
-    
-    // Include Column: modify data validation values
-    var includeValues = ['✓', '✘'];
-    var includeRule = SpreadsheetApp.newDataValidation().requireValueInList(includeValues, true).build();
-    includeCol.setDataValidation(includeRule);
-    
-    // Scope Column: modify data validation values
-    var scopeValues = ['USER','SESSION','HIT','PRODUCT'];
-    var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
-    scopeCol.setDataValidation(scopeRule);
-    
-    // Active Column: modify data validation values
-    var activeValues = ['TRUE','FALSE'];
-    var activeRule = SpreadsheetApp.newDataValidation().requireValueInList(activeValues, true).build();
-    activeCol.setDataValidation(activeRule);
   } catch (e) {
     return "failed to set the header values and format ranges\n"+ e.message;
   }
