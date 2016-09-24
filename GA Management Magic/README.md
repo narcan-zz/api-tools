@@ -17,7 +17,7 @@ Depending on whether there is data in the current sheet, the sheet will either b
 
 If you update any of these values, you can push the updates to GA by invoking one of the __Update__ functions from the add-on menu.
 
-####Updating Custom Dimensions/Metrics
+####Updating
 To update settings run one of the __Update__ commands from the add-on menu.
 
 If there is no data in the sheet, or the sheet format is not recognized by the scripts, a formatted sheet will be presented, into which filter/custom dimension/metric settings can be entered.
