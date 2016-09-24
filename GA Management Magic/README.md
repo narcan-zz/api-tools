@@ -1,30 +1,23 @@
 GA Management Magic
 ---------
-The Google Analytics Management API can be accessed through a Google Sheet to list and update settings data in a tabular format. This application lists management entities from Google Analytics into your sheet, and allows you to update settings based on edits or additions in your sheet.
+The Google Analytics Management API can be accessed through a Google Sheet to list and update settings data in a Google Sheet. This Sheets add-on provides a seemless extension that enterprise users of Google Analytics can employ to list entities from Google Analytics into a sheet, make updates and additions to those entities and push updated items from the sheet up to GA.
+
+It works with free as well as GA 360 properties.
 
 ###Installing the tool
-This tool can be installed through the [Google Add-ons Web Store](https://chrome.google.com/webstore/detail/clmbnkmolchgmhnkbcjbadnnhekdigdo/). It can also be installed by placing all the Apps Script files in this repository into [a script bound to a Google Sheet](https://developers.google.com/apps-script/guides/bound).
+This tool can most easily be installed through the [Google Add-ons Web Store](https://chrome.google.com/webstore/detail/clmbnkmolchgmhnkbcjbadnnhekdigdo/).
 
-##Working with Custom Dimensions/Metrics in Google Sheets
-####Listing Custom Dimensions/Metrics
-To list custom dimensions/metrics from a property (or list of properties), run the __List custom dimensions__ or __List custom metrics__ command from the add-on menu. At the prompt, enter one or more property ID(s) from which to list custom dimension/metric settings in your sheet.
+If you wish to extend the functionality, it can also be installed by placing all the Apps Script files in this repository into [a script bound to a Google Sheet](https://developers.google.com/apps-script/guides/bound).
 
-A new sheet will be added, formatted, and populated with the values from the properties listed.
+##Working with Filters, Custom Dimensions & Custom Metrics in Google Sheets
+####Listing
+To list filters from an account (or a list of accounts), or custom dimensions/metrics from a property (or list of properties), run one of the __List__ commands from the add-on menu. At the prompt, enter one or more account or property ID(s) -- as directed -- from which to list the management entity settings in your sheet.
 
-If you update any of these values, you can update the custom dimensions/metrics in your property by running the __Update custom dimensions__ or __Update custom metrics__ function from the add-on menu.
+Depending on whether there is data in the current sheet, the sheet will either be cleared and then formatted, or else a new sheet will be added and formatted. The resulting formatted sheet will then be populated with the values from the accounts/properties.
+
+If you update any of these values, you can push the updates to GA by invoking one of the __Update__ functions from the add-on menu.
 
 ####Updating Custom Dimensions/Metrics
-To update custom dimension/metric settings within a property or list of properties, run the __Update custom dimensions__ __Update custom metrics__ command from the add-on menu.
+To update settings run one of the __Update__ commands from the add-on menu.
 
-If you do not have a pre-formatted sheet, the script will format a new sheet for you into which you can enter your custom dimension/metric settings.
----------
-##Working with Filters in Google Sheets
-####Listing Filters
-To list filters from an account, run the __List filters__ command from the add-on menu. Enter one or more account ID(s) from which to list settings.
-
-A new sheet will be added, formatted, and populated with the filter values from the account.
-
-If you modify any of these values, you can update the filters in your account by running the __Update filters__ function from the add-on menu.
-
-####Updating Filters
-To update filter settings from the sheet to an account or list of accounts, run the __Update filters__ command from the add-on menu. At the prompt, enter the account IDs (separated by commas) of the accounts that should be updated with the filter settings in your sheet.
+If there is no data in the sheet, or the sheet format is not recognized by the scripts, a formatted sheet will be presented, into which filter/custom dimension/metric settings can be entered.
