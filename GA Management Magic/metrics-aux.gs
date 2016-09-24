@@ -1,5 +1,5 @@
 /* Management Magic for Google Analytics
-*    Auxiliary functions for dimension management
+*    Auxiliary functions for metric management
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
 ***************************************************************************/
@@ -8,14 +8,14 @@
 /**************************************************************************
 * Adds a formatted sheet to the spreadsheet to faciliate data management.
 */
-function formatDimensionSheet(createNew) {
+function formatMetricSheet(createNew) {
   // Get common values
   var ui = SpreadsheetApp.getUi();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getActiveSheet();
   var date = new Date();
-  var sheetName = "Dimensions@"+ date.getTime();
-  var NUMBER_OF_COLUMNS = 6;
+  var sheetName = "Metrics@"+ date.getTime();
+  var NUMBER_OF_COLUMNS = 9;
 
   // Normalize/format the values of the parameters
   createNew = (createNew === undefined) ? false : createNew;
@@ -65,9 +65,10 @@ function formatDimensionSheet(createNew) {
   var propertyCol = sheet.getRange("B2:B");
   var indexCol = sheet.getRange("D2:D");
   var scopeCol = sheet.getRange("E2:E");
-  var activeCol = sheet.getRange("F2:F");
+  var formattingTypeCol = sheet.getRange("F2:F");
+  var activeCol = sheet.getRange("I2:I");
   
-  // Set header range, values and formatting.
+  // set header values and formatting.
   try {
     var headerRange = sheet.getRange(1,1,1,sheet.getMaxColumns());
     sheet.getRange("A1").setValue("Include");
@@ -75,13 +76,16 @@ function formatDimensionSheet(createNew) {
     sheet.getRange("C1").setValue("Name");
     sheet.getRange("D1").setValue("Index");
     sheet.getRange("E1").setValue("Scope");
-    sheet.getRange("F1").setValue("Active");
+    sheet.getRange("F1").setValue("Formatting Type");
+    sheet.getRange("G1").setValue("Min");
+    sheet.getRange("H1").setValue("Max");
+    sheet.getRange("I1").setValue("Active");
     headerRange.setFontWeight("bold");
     headerRange.setBackground("#4285F4");
     headerRange.setFontColor("#FFFFFF");
     
     // Index Column: protect & set background & font color
-    indexCol.protect().setDescription("prevent others from modifying the dimension indices");
+    indexCol.protect().setDescription("prevent others from modifying the metric indices");
     indexCol.setBackground("#BABABA");
     indexCol.setFontColor("#FFFFFF");
     
@@ -91,10 +95,15 @@ function formatDimensionSheet(createNew) {
     includeCol.setDataValidation(includeRule);
     
     // Scope Column: modify data validation values
-    var scopeValues = ['USER','SESSION','HIT','PRODUCT'];
+    var scopeValues = ['HIT','PRODUCT'];
     var scopeRule = SpreadsheetApp.newDataValidation().requireValueInList(scopeValues, true).build();
     scopeCol.setDataValidation(scopeRule);
     
+    // Scope Column: modify data validation values
+    var formattingTypeValues = ['INTEGER','CURRENCY','TIME'];
+    var formattingTypeRule = SpreadsheetApp.newDataValidation().requireValueInList(formattingTypeValues, true).build();
+    formattingTypeCol.setDataValidation(formattingTypeRule);
+        
     // Active Column: modify data validation values
     var activeValues = ['TRUE','FALSE'];
     var activeRule = SpreadsheetApp.newDataValidation().requireValueInList(activeValues, true).build();
@@ -106,7 +115,7 @@ function formatDimensionSheet(createNew) {
   // send Measurement Protocol hit to Google Analytics
   var label = '';
   var value = '';
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'format dimension sheet',label,value);
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'format metric sheet',label,value);
   Logger.log(httpResponse);
   
   return sheet;

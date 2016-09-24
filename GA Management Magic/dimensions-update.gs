@@ -1,32 +1,47 @@
 /* Management Magic for Google Analytics
-*    Updates custom dimensions from a GA property
+*    Updates dimensions from a GA property
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
 ***************************************************************************/
 
 
 /**************************************************************************
-* Obtains input from user necessary for updating custom dimensions.
+* Obtains input from user necessary for updating dimensions.
 */
-function requestCDUpdate() {
-  // Check that the necessary named range exists.
-  if (SpreadsheetApp.getActiveSpreadsheet().getRangeByName("header_row")) {
-    
-    // Update custom dimensions from the sheet.
-    var updateDimensionResponse = updateDimensions();
-    
-    // Output errors and log successes.
-    if (updateDimensionResponse != "success") {
-      Browser.msgBox(updateDimensionResponse);
-    } else {
-      Logger.log("Update custom dimensions response: "+ updateDimensionResponse)
+function requestDimensionUpdate() {
+  // set common values
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  
+  if (dataRange) {
+    var dataRows = dataRange.getNumRows() - 1;
+    var dataColumns = dataRange.getNumColumns();
+    var DIMENSION_DATA_COLUMNS = 6; // number of data columns that there should be  
+  
+    // Only attempt to update data if the data format is correct
+    if (dataRows > 0 && dataColumns == DIMENSION_DATA_COLUMNS) {
+      var dimensions = sheet.getRange(2,1,dataRows,dataColumns).getValues();
+      var updateDimensionResponse = updateDimensions(dimensions);
+      console.log(updateDimensionResponse);
+      
+      // Output errors and log successes.
+      if (updateDimensionResponse != "success") {
+        Browser.msgBox(updateDimensionResponse);
+      } else {
+        Browser.msgBox("Dimensions Updated");
+      }
+    }
+      // If data in the sheet doesn't match basic formatting expectations, format the sheet and display instructions to the user
+    else {
+      var sheet = formatDimensionSheet(true);
+      Browser.msgBox("Enter dimension values into the sheet provided before requesting to update dimensions.");
     }
   }
   
-  // If there is no named range (necessary to update values), format the sheet and display instructions to the user
+  // If there is no data in the sheet, format the sheet and display instructions to the user
   else {
-    var sheet = formatDimensionSheet(true);
-    Browser.msgBox("Enter dimension values into the sheet provided before requesting to update dimensions.")
+    var sheet = formatDimensionSheet(false);
+    Browser.msgBox("Enter dimension values into the sheet provided before requesting to update dimensions.");
   }
 }
 
@@ -34,18 +49,11 @@ function requestCDUpdate() {
 * Updates dimension settings from the active sheet to a property.
 * @return {string} Operation output ("success" or error message)
 */
-function updateDimensions() {
+function updateDimensions(dimensions) {
   // set common values
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var dataRange = sheet.getDataRange();
-  var dataColumns = dataRange.getNumColumns(); // should be 5
-  var dataRows = dataRange.getNumRows() - 1;
   var maxRows = (propertyType == "PREMIUM") ? 200 : 20;
   var numDimensionsUpdated = 0;
   var propertiesUpdated = [];
-  
-  // Capture the sheet values.
-  var dimensions = sheet.getRange(2,1,dataRows,dataColumns).getValues();
   
   // Iterate through rows of values in the sheet.
   for (var d = 0; d < dimensions.length; d++) {
@@ -94,8 +102,9 @@ function updateDimensions() {
             var options = {ignoreCustomDataSourceLinks: true};
             
             // Attempt to update the dimension through the API
-            try { Analytics.Management.CustomDimensions.update(resource,account,property,dimensionId,options);
-                } catch (e) {return "failed to update all custom dimensions\n"+ e.message}
+            try {
+              Analytics.Management.CustomDimensions.update(resource,account,property,dimensionId,options);
+            } catch (e) {return "failed to update all dimensions\n"+ e.message}
           }
         }
         
@@ -105,9 +114,9 @@ function updateDimensions() {
           if (e.message.match(/ga:dimension(\d)+ not found/)) {
             var resource = {"index":index, "name":name, "scope":scope, "active":active};
             
-            // Attempt to inser the dimension
-            try { Analytics.Management.CustomDimensions.insert(resource,account,property); } catch (e) {return "failed to insert all custom dimensions\n"+ e.message}
-          } else return "failed to insert all custom dimensions\n"+ e.message;
+            // Attempt to insert the dimension
+            try { Analytics.Management.CustomDimensions.insert(resource,account,property); } catch (e) {return "failed to insert all dimensions\n"+ e.message}
+          } else return "failed to insert all dimensions\n"+ e.message;
         }
       }        
     }
@@ -116,7 +125,7 @@ function updateDimensions() {
   // send Measurement Protocol hit to Google Analytics
   var label = propertiesUpdated;
   var value = numDimensionsUpdated;
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'update custom dimensions',label,value);
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'update dimensions',label,value);
   Logger.log(httpResponse);
   
   return "success";

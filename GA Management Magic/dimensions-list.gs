@@ -1,18 +1,18 @@
 /* Management Magic for Google Analytics
-*    Lists custom dimensions from a GA property
+*    Lists dimensions from a GA property
 *
 * Copyright ©2015 Pedro Avila (pdro@google.com)
 ***************************************************************************/
 
 
 /**************************************************************************
-* Obtains input from user necessary for listing custom dimensions.
+* Obtains input from user necessary for listing dimensions.
 */
-function requestCDList() {
+function requestDimensionList() {
   // Display a dialog box with a title, message, input field, and "OK" and "Cancel" buttons. The
   // user can also close the dialog by clicking the close button in its title bar.
   var ui = SpreadsheetApp.getUi();
-  var response = ui.prompt('Property ID', 'Enter the ID of the property from which to list custom dimensions (UA-xxxx-y): ', ui.ButtonSet.OK_CANCEL);
+  var response = ui.prompt('Property ID', 'Enter the ID of the property from which to list dimensions (UA-xxxx-y): ', ui.ButtonSet.OK_CANCEL);
   
   // Process the user's response.
   if (response.getSelectedButton() == ui.Button.OK) {
@@ -20,22 +20,22 @@ function requestCDList() {
     var propertyList = response.getResponseText();
     var propertyListArray = propertyList.split(/\s*,\s*/);
     
-    // List custom dimensions from all properties entered by the user.
-    var listResponse = listCustomDimensions(propertyListArray);
+    // List dimensions from all properties entered by the user.
+    var listResponse = listDimensions(propertyListArray);
     
     // Output errors and log successes.
     if (listResponse != "success") {
       Browser.msgBox(listResponse);
     } else {
-      Logger.log("List custom dimensions response: "+ listResponse)
+      console.log("List dimensions response: "+ listResponse)
     }
   }
   
   // Log method by which the user chose not to proceed.
   else if (response.getSelectedButton() == ui.Button.CANCEL) {
-    Logger.log('The user did not provide a property ID.');
+    console.log('The user did not provide a property ID.');
   } else {
-    Logger.log('The user clicked the close button in the dialog\'s title bar.');
+    console.log('The user clicked the close button in the dialog\'s title bar.');
   } 
 }
 
@@ -44,7 +44,7 @@ function requestCDList() {
 * @param {string} property The tracking ID of the GA property
 * @return {string} Operation output ('success' or error message)
 */
-function listCustomDimensions(propertyList) {
+function listDimensions(propertyList) {
   // Set common values
   var include = "✓";
   var allDimensions = [];
@@ -62,7 +62,7 @@ function listCustomDimensions(propertyList) {
       
       // Attempt to get property information from the Management API
       try {
-        var customDimensionList = Analytics.Management.CustomDimensions.list(account, property);
+        var dimensionList = Analytics.Management.CustomDimensions.list(account, property);
       } catch (e) {
         return e.message;
       }
@@ -72,9 +72,9 @@ function listCustomDimensions(propertyList) {
         var dimensions = [];
         
         // Parse each result of the API request and push it to an array
-        for (var i = 0; i < customDimensionList.totalResults; i++) {
-          var cd = customDimensionList.items[i];
-          dimensions[i] = [include,cd.webPropertyId,cd.name,cd.index,cd.scope,cd.active];
+        for (var i = 0; i < dimensionList.totalResults; i++) {
+          var dimension = dimensionList.items[i];
+          dimensions[i] = [include,dimension.webPropertyId,dimension.name,dimension.index,dimension.scope,dimension.active];
           allDimensions.push(dimensions[i]); 
         }
       } catch (e) {
@@ -97,8 +97,8 @@ function listCustomDimensions(propertyList) {
   // send Measurement Protocol event hit to Google Analytics
   var label = propertyList;
   var value = propertyList.length;
-  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'list custom dimensions',label,value);
-  Logger.log(httpResponse);
+  var httpResponse = mpHit(SpreadsheetApp.getActiveSpreadsheet().getUrl(),'list dimensions',label,value);
+  console.log(httpResponse);
   
   return "success";
 }

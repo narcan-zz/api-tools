@@ -4,6 +4,9 @@
 * Copyright ©2015 Pedro Avila (pdro@google.com)
 ***************************************************************************/
 
+// add functionality to get the views in which the filter is applied
+//in the edit file, add functionality to push filters to other views
+
 
 /**************************************************************************
 * Obtains input from user necessary for listing filters

@@ -9,23 +9,38 @@
 * Obtains input from user necessary for updating custom dimensions.
 */
 function requestFilterUpdate() {
-  // Check that the necessary named range exists.
-  if (SpreadsheetApp.getActiveSpreadsheet().getRangeByName("header_row")) {
-    
-    // Update the filters from the sheet.
-    var updateFiltersResponse = updateFilters();
-    
-    // Output errors and log successes.
-    if (updateFiltersResponse != "success") {
-      Logger.log("response for "+ account + ": "+ updateFiltersResponse)
-    } else {
-      Logger.log("Update filters response: "+ updateFiltersResponse)
+  // Get common values
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var dataRange = sheet.getDataRange();
+  
+  if (dataRange) {
+    var dataRows = dataRange.getNumRows() - 1;
+    var dataColumns = dataRange.getNumColumns();
+    var FILTER_DATA_COLUMNS = 20; // number of data columns that there should be
+
+    // Only attempt to update data if the data format is correct
+    if (dataRows > 0 && dataColumns == FILTER_DATA_COLUMNS) {
+      var filters = sheet.getRange(2,1,dataRows,sheet.getMaxColumns()).getValues();
+      var updateFiltersResponse = updateFilters(filters);
+      console.log(updateFiltersResponse);
+  
+      // Output errors and log successes.
+      if (updateFiltersResponse != "success") {
+        console.log("response for "+ account + ": "+ updateFiltersResponse)
+      } else {
+        console.log("Update filters response: "+ updateFiltersResponse)
+      }
+    }
+      // If there is no named range (necessary to update values), format the sheet and display instructions to the user.
+    else {
+      formatFilterSheet(true);
+      Browser.msgBox("Enter filter values into the sheet provided before requesting to update filters.")
     }
   }
   
-  // If there is no named range (necessary to update values), format the sheet and display instructions to the user.
+  // If there is no data in the sheet, format the sheet and display instructions to the user.
   else {
-    formatFilterSheet(true);
+    formatFilterSheet(false);
     Browser.msgBox("Enter filter values into the sheet provided before requesting to update filters.")
   }
 }
@@ -34,12 +49,8 @@ function requestFilterUpdate() {
 * Updates dimension settings from the active sheet to a property.
 * @return {string} The result of the update operation ("success", if successful)
 */
-function updateFilters() {
+function updateFilters(filters) {
   // Get common values
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var dataRows = sheet.getDataRange().getNumRows()-1;
-  var filterRange = sheet.getRange(2,1,dataRows,sheet.getMaxColumns());
-  var filters = filterRange.getValues();
   var numFiltersUpdated = 0;
   var accountsUpdated = [];
   

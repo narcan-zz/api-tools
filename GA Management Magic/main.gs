@@ -26,6 +26,10 @@ function onOpen(e) {
       .addItem('List custom metrics', 'requestMetricList')
       .addItem('Update custom metrics', 'requestMetricUpdate')
       .addSeparator()
+      .addItem('Format filter sheet', 'formatFilterSheet')
+      .addItem('Format dimension sheet', 'formatDimensionSheet')
+      .addItem('Format metric sheet', 'formatMetricSheet')
+      .addSeparator()
       .addItem('About this Add-on','about');
     } else {
       menu.addItem('List filters', 'requestFilterList')
@@ -37,10 +41,14 @@ function onOpen(e) {
       .addItem('List custom metrics', 'requestMetricList')
       .addItem('Update custom metrics', 'requestMetricUpdate')
       .addSeparator()
-      .addItem('About this Add-on','about');
+      .addItem('Format filter sheet', 'formatFilterSheet')
+      .addItem('Format dimension sheet', 'formatDimensionSheet')
+      .addItem('Format metric sheet', 'formatMetricSheet')
+      .addSeparator()
+      .addItem('About this Add-on','about');  
     }
     menu.addToUi();
-    
+
     // send Measurement Protocol hitType to Google Analytics
       mpHit(ss.getUrl(),'open');    
   } catch (e) {
