@@ -1,8 +1,11 @@
-<div class="alert alert-success">
+---
+**NOTE**
+
 Many of you have written about errors related to quota limits. This is a known issue related to the Google Analytics Management API daily quota and is being worked on.
 
 In the meantime, you can work around it by following the instructions below, which will use your own cloud project (and won't be sharing the quota with others). This should eliminate the issue for most users, though it should be noted that the API quotas still apply.
-</div>
+
+---
 
 GA Management Magic
 ---------
