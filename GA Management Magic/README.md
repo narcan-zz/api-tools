@@ -1,5 +1,3 @@
-{info:title=Useful Information}The useful information.{info}
-
 ---
 
 Many of you have written about errors related to quota limits. This is a known issue related to the Google Analytics Management API daily quota and is being worked on.
